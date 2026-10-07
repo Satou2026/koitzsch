@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="api-base" content="https://api.blitzleihen.com" />
+    <meta name="description" content="Teilen Sie Ihre Erfahrung mit K&amp;S Finanzberatung und helfen Sie anderen bei der Wahl ihres Kreditpartners." />
+    <!-- Lien personnel à jeton, non destiné à être partagé ou indexé — même
+         logique que les autres pages "espace client" du site (decision.html
+         équivalent server-side, contrat-lesen, etc.), qui sont elles aussi
+         hors sitemap et non indexables. -->
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="googlebot" content="noindex, nofollow" />
+
+    <title>Bewertung abgeben – K&S Finanzberatung</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+    <link rel="preload" as="image" href="https://res.cloudinary.com/duramdsjz/image/upload/f_auto,q_auto/v1790578267/kundenstimmen-hero.webp" imagesrcset="https://res.cloudinary.com/duramdsjz/image/upload/f_auto,q_auto,c_limit,w_640/v1790578267/kundenstimmen-hero.webp 640w, https://res.cloudinary.com/duramdsjz/image/upload/f_auto,q_auto,c_limit,w_960/v1790578267/kundenstimmen-hero.webp 960w, https://res.cloudinary.com/duramdsjz/image/upload/f_auto,q_auto,c_limit,w_1280/v1790578267/kundenstimmen-hero.webp 1280w, https://res.cloudinary.com/duramdsjz/image/upload/f_auto,q_auto,c_limit,w_1600/v1790578267/kundenstimmen-hero.webp 1600w" imagesizes="100vw" fetchpriority="high" />
+    <link rel="stylesheet" href="css/global.css" />
+    <link rel="stylesheet" href="css/navigation.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/pages.css" />
+    <link rel="stylesheet" href="css/chat-widget.css" />
+    <link rel="stylesheet" href="css/bg-effects.css" />
+    <link rel="stylesheet" href="css/editorial.css" />
+    <link rel="stylesheet" href="css/avis.css" />
+
+    <link rel="icon" type="image/webp" href="logo-ks.webp" />
+  </head>
+
+  <body>
+    <div id="pageLoaderPlaceholder"></div>
+    <header class="site-header" id="siteHeader" role="banner">
+  <div class="header-inner">
+
+    <!-- Logo Finanzberatung Koitzsch u. Schuchardt -->
+    <a href="index.html" class="site-logo" aria-label="Finanzberatung Koitzsch u. Schuchardt – Startseite">
+      <img src="logo-ks.webp" alt="Finanzberatung Koitzsch u. Schuchardt" class="site-logo__img" width="160" height="50">
+    </a>
+
+    <!-- Navigation Desktop -->
+    <nav class="nav-desktop" role="navigation" aria-label="Hauptnavigation">
+      <a href="index.html"      class="nav-desktop__link">Startseite</a>
+      <a href="kredite.html"    class="nav-desktop__link">Kredite</a>
+      <a href="simulation.html" class="nav-desktop__link">Kreditrechner</a>
+      <a href="ratgeber.html"   class="nav-desktop__link">Ratgeber</a>
+      <a href="blog.html"   class="nav-desktop__link">Blog</a>
+      <a href="ueber-uns.html"  class="nav-desktop__link">Über uns</a>
+      <a href="kontakt.html"    class="nav-desktop__link">Kontakt</a>
+      <a href="kreditantrag.html" class="nav-desktop__link nav-desktop__cta">Kreditantrag stellen</a>
+    </nav>
+
+    <!-- Bouton Hamburger (mobile/tablette) -->
+    <button class="nav-toggle" id="navToggle" aria-label="Menü öffnen" aria-expanded="false" aria-controls="navMobile">
+      <span class="nav-toggle__bar"></span>
+      <span class="nav-toggle__bar"></span>
+      <span class="nav-toggle__bar"></span>
+    </button>
+  </div>
+</header>
+
+<!-- Overlay derrière la sidebar mobile -->
+<div class="nav-overlay" id="navOverlay" aria-hidden="true"></div>
+
+<!-- Sidebar Mobile (s'ouvre de droite vers gauche) -->
+<nav class="nav-mobile" id="navMobile" role="navigation" aria-label="Mobile Navigation" aria-hidden="true">
+
+  <!-- En-tête de la sidebar : le hamburger (transformé en croix rouge) sert désormais de fermeture unique -->
+  <div class="nav-mobile__header">
+    <a href="index.html" class="site-logo nav-mobile__logo" aria-label="Finanzberatung Koitzsch u. Schuchardt">
+      <img src="logo-ks.webp" alt="Finanzberatung Koitzsch u. Schuchardt" class="site-logo__img" width="130" height="40">
+    </a>
+  </div>
+
+  <!-- Corps de la sidebar : liens de navigation -->
+  <div class="nav-mobile__body">
+    <a href="index.html"      class="nav-mobile__link">
+      <span>🏠 Startseite</span>
+      <span class="nav-mobile__link-arrow">›</span>
+    </a>
+    <a href="kredite.html"    class="nav-mobile__link">
+      <span>💶 Kredite</span>
+      <span class="nav-mobile__link-arrow">›</span>
+    </a>
+    <a href="simulation.html" class="nav-mobile__link">
+      <span>🧮 Kreditrechner</span>
+      <span class="nav-mobile__link-arrow">›</span>
+    </a>
+    <a href="zinssatz.html"   class="nav-mobile__link">
+      <span>📖 Wie wird Ihr Zinssatz berechnet?</span>
+      <span class="nav-mobile__link-arrow">›</span>
+    </a>
+    <a href="ratgeber.html"   class="nav-mobile__link">
+      <span>📰 Ratgeber</span>
+      <span class="nav-mobile__link-arrow">›</span>
+    </a>
+    <a href="blog.html"   class="nav-mobile__link">
+      <span>✍️ Blog</span>
+      <span class="nav-mobile__link-arrow">›</span>
+    </a>
+    <a href="ueber-uns.html"  class="nav-mobile__link">
+      <span>👥 Über uns</span>
+      <span class="nav-mobile__link-arrow">›</span>
+    </a>
+    <a href="kontakt.html"    class="nav-mobile__link">
+      <span>✉ Kontakt</span>
+      <span class="nav-mobile__link-arrow">›</span>
+    </a>
+  </div>
+
+  <!-- Pied de la sidebar : CTA -->
+  <div class="nav-mobile__footer">
+    <a href="kreditantrag.html" class="btn btn-accent">⚡ Jetzt Kredit beantragen</a>
+  </div>
+</nav>
+
+    <main id="main-content">
+      <div class="edt-hero edt-hero--mini">
+        <div class="edt-hero__media"><img src="https://res.cloudinary.com/duramdsjz/image/upload/f_auto,q_auto/v1790578267/kundenstimmen-hero.webp" alt="" width="1600" height="620" fetchpriority="high" decoding="async" srcset="https://res.cloudinary.com/duramdsjz/image/upload/f_auto,q_auto,c_limit,w_640/v1790578267/kundenstimmen-hero.webp 640w, https://res.cloudinary.com/duramdsjz/image/upload/f_auto,q_auto,c_limit,w_960/v1790578267/kundenstimmen-hero.webp 960w, https://res.cloudinary.com/duramdsjz/image/upload/f_auto,q_auto,c_limit,w_1280/v1790578267/kundenstimmen-hero.webp 1280w, https://res.cloudinary.com/duramdsjz/image/upload/f_auto,q_auto,c_limit,w_1600/v1790578267/kundenstimmen-hero.webp 1600w" sizes="100vw" /></div>
+        <div class="edt-hero__scrim"></div>
+        <div class="edt-hero__content container">
+          <span class="edt-hero__eyebrow">Ihre Meinung zählt</span>
+          <h1 class="edt-h1" style="font-size:clamp(1.9rem,4vw,2.8rem);">Wie war Ihre Erfahrung?</h1>
+          <p class="edt-hero__sub">Nehmen Sie sich zwei Minuten Zeit, um Ihre Erfahrung mit Finanzberatung Koitzsch u. Schuchardt zu teilen.</p>
+        </div>
+      </div>
+
+      <section class="section-py">
+        <div class="container" style="max-width:640px;">
+
+          <!-- État : chargement / vérification du jeton -->
+          <div id="avisLoading" class="loan-form" style="text-align:center;">
+            <p style="color:var(--color-text-light);">Ihr Bewertungslink wird geprüft …</p>
+          </div>
+
+          <!-- État : lien invalide / expiré / déjà utilisé -->
+          <div id="avisInvalid" class="loan-form" style="display:none;text-align:center;">
+            <div class="success-icon" style="background:var(--color-error);">!</div>
+            <h2 style="font-family:var(--font-heading);font-size:var(--text-2xl);color:var(--color-primary);margin-bottom:var(--space-4);">
+              Dieser Link ist nicht mehr gültig
+            </h2>
+            <p id="avisInvalidText" style="font-size:var(--text-lg);color:var(--color-text-light);margin-bottom:var(--space-6);">
+              Dieser Bewertungslink ist ungültig, abgelaufen oder wurde bereits verwendet.
+            </p>
+            <a href="kontakt.html" class="btn btn-primary">Kontakt aufnehmen</a>
+          </div>
+
+          <!-- État : formulaire -->
+          <form class="loan-form" id="avisForm" novalidate style="display:none;">
+            <h2 class="loan-form__section-title" id="avisFormTitle" style="margin-bottom:var(--space-6);">Ihre Bewertung</h2>
+
+            <div id="avisError" class="alert alert-error" style="margin-bottom:var(--space-6);display:none;">
+              <span>⚠</span>
+              <div id="avisErrorText"><strong>Fehler beim Senden.</strong> Bitte versuchen Sie es erneut.</div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Ihre Bewertung <span class="required">*</span></label>
+              <div class="avis-stars" role="radiogroup" aria-label="Bewertung in Sternen">
+                <input type="radio" name="rating" id="avisStar5" value="5" required /><label for="avisStar5" title="5 Sterne">★</label>
+                <input type="radio" name="rating" id="avisStar4" value="4" required /><label for="avisStar4" title="4 Sterne">★</label>
+                <input type="radio" name="rating" id="avisStar3" value="3" required /><label for="avisStar3" title="3 Sterne">★</label>
+                <input type="radio" name="rating" id="avisStar2" value="2" required /><label for="avisStar2" title="2 Sterne">★</label>
+                <input type="radio" name="rating" id="avisStar1" value="1" required /><label for="avisStar1" title="1 Stern">★</label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="avisComment">Ihr Kommentar <span class="required">*</span></label>
+              <textarea id="avisComment" name="comment" class="form-control" rows="5" placeholder="Erzählen Sie uns von Ihrer Erfahrung mit Finanzberatung Koitzsch u. Schuchardt …" required minlength="10" maxlength="2000"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="avisDisplayName">Ihr Name (wird veröffentlicht) <span class="required">*</span></label>
+              <input type="text" id="avisDisplayName" name="displayName" class="form-control" placeholder="z. B. Michael K." required maxlength="100" />
+              <span style="font-size:var(--text-xs);color:var(--color-text-muted);">Aus Datenschutzgründen empfehlen wir Vorname + Nachname-Initiale statt Ihres vollen Namens.</span>
+            </div>
+
+            <label class="consent-check" style="margin: var(--space-2) 0 var(--space-6)">
+              <input type="checkbox" name="consentPublication" id="avisConsent" required />
+              <span class="consent-check__text">
+                Ich bin damit einverstanden, dass meine Bewertung (Sterne, Kommentar, angegebener Name) nach Prüfung durch Finanzberatung Koitzsch u. Schuchardt auf der Website veröffentlicht wird.
+                <span class="required">*</span>
+              </span>
+            </label>
+
+            <!-- Consentement Google : facultatif, jamais pré-coché, affiché seulement si le lien Google est configuré (voir js/avis-form.js) -->
+            <label class="consent-check" id="avisGoogleGroup" style="display:none;margin: 0 0 var(--space-6)">
+              <input type="checkbox" name="consentGoogle" id="avisConsentGoogle" />
+              <span class="consent-check__text">
+                <strong>Optional:</strong> Ich möchte meine Bewertung zusätzlich auf Google teilen. Google erlaubt Bewertungen nur direkt durch Sie selbst: Nach dem Absenden kopieren wir Ihren Text für Sie und leiten Sie zu Google weiter. Wir veröffentlichen nichts ohne Ihr Zutun auf Google.
+              </span>
+            </label>
+
+            <p style="font-size:var(--text-xs);color:var(--color-text-muted);margin:0 0 var(--space-6);">
+              Alle Bewertungen werden vor der Veröffentlichung auf Echtheit und Rechtmäßigkeit geprüft.
+            </p>
+
+            <button type="submit" class="btn btn-accent btn-lg btn-pulse" id="avisSubmitBtn">⭐ Bewertung absenden</button>
+          </form>
+
+          <!-- État : succès -->
+          <div id="avisSuccess" class="loan-form" style="display:none;text-align:center;">
+            <div class="success-icon">✓</div>
+            <h2 style="font-family:var(--font-heading);font-size:var(--text-2xl);color:var(--color-primary);margin-bottom:var(--space-4);">
+              Vielen Dank für Ihre Bewertung!
+            </h2>
+            <p style="font-size:var(--text-lg);color:var(--color-text-light);margin-bottom:var(--space-6);">
+              Ihre Bewertung wurde übermittelt und wird nach kurzer Prüfung auf Echtheit und Rechtmäßigkeit veröffentlicht.
+            </p>
+            <div id="avisGoogleCta" style="display:none;margin-bottom:var(--space-6);padding:var(--space-6);background:var(--color-bg-section);border-radius:var(--radius-lg);">
+              <p style="margin-bottom:var(--space-2);color:var(--color-text);"><strong>Sie möchten Ihre Erfahrung auch auf Google teilen.</strong></p>
+              <p style="margin-bottom:var(--space-4);color:var(--color-text-light);font-size:var(--text-sm);">Ein Klick kopiert Ihren Text in die Zwischenablage und öffnet Google. Dort fügen Sie ihn ein und senden ihn mit Ihrem Google-Konto ab.</p>
+              <a href="#" id="avisGoogleLink" target="_blank" rel="noopener" class="btn btn-primary">Text kopieren &amp; auf Google bewerten</a>
+              <p id="avisGoogleCopied" style="display:none;margin-top:var(--space-3);font-size:var(--text-sm);color:var(--color-success);">✓ Text kopiert – bitte bei Google mit „Einfügen“ übernehmen.</p>
+              <div id="avisGoogleManual" style="display:none;margin-top:var(--space-3);text-align:left;">
+                <p style="font-size:var(--text-sm);color:var(--color-text-light);margin-bottom:var(--space-2);">Automatisches Kopieren war nicht möglich. Bitte kopieren Sie Ihren Text hier manuell:</p>
+                <textarea id="avisGoogleManualText" class="form-control" rows="4" readonly></textarea>
+              </div>
+            </div>
+            <a href="index.html" class="btn btn-secondary">Zurück zur Startseite</a>
+          </div>
+
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer" role="contentinfo">
+  <!-- Fond photo 100% statique (CSS pur, voir css/bg-effects.css) -->
+  <div class="footer-top">
+
+    <!-- Colonne : marque -->
+    <div class="footer-brand">
+      <a href="index.html" class="site-logo">
+        <img src="logo-ks.webp" alt="Finanzberatung Koitzsch u. Schuchardt" class="site-logo__img" width="160" height="50" loading="lazy">
+      </a>
+      <p class="footer-brand__desc">
+        Finanzberatung Koitzsch u. Schuchardt ist Ihr vertrauenswürdiger Finanzpartner für Privat- und Immobilienkredite in Deutschland. Schnell, transparent und fair.
+      </p>
+      <div class="footer-badges">
+        <span class="footer-badge">🔒 SSL-verschlüsselt</span>
+        <span class="footer-badge">🇩🇪 In Deutschland ansässig</span>
+        <span class="footer-badge">⚡ 48h Auszahlung</span>
+      </div>
+    </div>
+
+    <!-- Colonne : Produkte -->
+    <div class="footer-col">
+      <h3 class="footer-col__title">Unsere Produkte</h3>
+      <ul class="footer-col__links">
+        <li><a href="kreditantrag.html"          class="footer-col__link">⚡ Kreditantrag stellen</a></li>
+        <li><a href="kredite/privatkredit.html"   class="footer-col__link">Privatkredit</a></li>
+        <li><a href="kredite/immobilienfinanzierung.html" class="footer-col__link">Immobilienkredit</a></li>
+        <li><a href="kredite/autokredit.html"     class="footer-col__link">Autofinanzierung</a></li>
+        <li><a href="kredite/renovierungskredit.html"    class="footer-col__link">Renovierungskredit</a></li>
+        <li><a href="kredite/hypothekenkredit.html"       class="footer-col__link">Hypothekenkredit</a></li>
+        <li><a href="kredite/umschuldung.html"    class="footer-col__link">Umschuldung</a></li>
+        <li><a href="simulation.html"             class="footer-col__link">🧮 Kreditrechner</a></li>
+        <li><a href="zinssatz.html"               class="footer-col__link">📖 Wie wird Ihr Zinssatz berechnet?</a></li>
+      </ul>
+    </div>
+
+    <!-- Colonne : Unternehmen -->
+    <div class="footer-col">
+      <h3 class="footer-col__title">Unternehmen</h3>
+      <ul class="footer-col__links">
+        <li><a href="ueber-uns.html"  class="footer-col__link">Über uns</a></li>
+        <li><a href="ratgeber.html"   class="footer-col__link">Ratgeber</a></li>
+        <li><a href="blog.html"   class="footer-col__link">Blog</a></li>
+        <li><a href="faq.html"        class="footer-col__link">Häufige Fragen (FAQ)</a></li>
+        <li><a href="kundenstimmen.html" class="footer-col__link">Kundenstimmen</a></li>
+        <li><a href="bewertungen.html" class="footer-col__link">Bewertungen</a></li>
+        <li><a href="kontakt.html"    class="footer-col__link">Kontakt</a></li>
+        <li><a href="ueber-uns.html#team" class="footer-col__link">Unser Team</a></li>
+        <li><a href="ueber-uns.html#karriere" class="footer-col__link">Karriere</a></li>
+      </ul>
+    </div>
+
+    <!-- Colonne : Rechtliches -->
+    <div class="footer-col">
+      <h3 class="footer-col__title">Rechtliches</h3>
+      <ul class="footer-col__links">
+        <li><a href="datenschutz.html" class="footer-col__link">Datenschutzerklärung</a></li>
+        <li><a href="agb.html"          class="footer-col__link">AGB</a></li>
+        <li><a href="impressum.html"    class="footer-col__link">Impressum</a></li>
+        <li><a href="kontakt.html"      class="footer-col__link">Widerruf</a></li>
+      </ul>
+      <!-- Infos contact rapides -->
+      <div style="margin-top: 1.5rem;">
+        <p style="font-size:0.8rem; color:rgba(255,255,255,0.45); line-height:1.8;">
+          ✉ <span style="font-family:var(--font-mono);">info@blitzleihen.com</span><br>
+          📞 <span style="font-family:var(--font-mono);">+49 (0) 3497 622228</span><br>
+          Mo–Fr: 08:00–18:00 Uhr
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <hr class="footer-divider">
+
+  <div class="footer-bottom">
+    <p class="footer-bottom__copy">
+      &copy; 2026 Finanzberatung Koitzsch u. Schuchardt. Alle Rechte vorbehalten. Versicherungs- und Kreditvermittlung erfolgt nach behördlicher Registrierung (IHK).
+    </p>
+    <nav class="footer-bottom__links" aria-label="Rechtliche Links">
+      <a href="impressum.html"   class="footer-bottom__link">Impressum</a>
+      <a href="datenschutz.html" class="footer-bottom__link">Datenschutz</a>
+      <a href="agb.html"          class="footer-bottom__link">AGB</a>
+    </nav>
+  </div>
+</footer>
+
+<!-- Bouton retour en haut de page -->
+<button id="backToTop" aria-label="Nach oben scrollen" title="Nach oben">↑</button>
+
+<!-- Bouton retour en haut de page -->
+<button id="backToTop" aria-label="Nach oben scrollen" title="Nach oben">↑</button>
+
+    <script src="js/template.js"></script>
+    <script src="js/loader.js"></script>
+    <script src="js/navigation.js"></script>
+    <script src="js/bg-effects.js" defer></script>
+    <script src="js/main.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/avis-form.js"></script>
+
+  </body>
+</html>

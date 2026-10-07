@@ -1,0 +1,117 @@
+/* =========================================================================
+   ADMIN-EDITORIAL.CSS — Rafraîchissement visuel de l'espace admin
+   Charge APRÈS admin.css. Ne modifie aucune structure HTML ni logique JS :
+   uniquement des surcharges visuelles (couleurs déjà partagées via
+   global.css, ombres, dégradés, micro-animations) pour aligner l'espace
+   admin sur la nouvelle identité visuelle du site public.
+   ========================================================================= */
+
+/* --- Sidebar : dégradé + accent actif doré ------------------------------ */
+.admin-sidebar {
+  background: linear-gradient(175deg, var(--color-primary), #07182f) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+.admin-nav__link {
+  border-radius: var(--radius-lg);
+  margin-inline: var(--space-2);
+  position: relative;
+  transition: background-color .2s ease, color .2s ease, transform .2s ease;
+}
+.admin-nav__link:hover { transform: translateX(2px); }
+.admin-nav__link.active {
+  background: rgba(200, 168, 75, 0.14) !important;
+  box-shadow: inset 3px 0 0 var(--color-accent);
+}
+.admin-sidebar__logo { filter: drop-shadow(0 0 6px rgba(200,168,75,.35)); }
+
+/* --- Topbar --------------------------------------------------------------*/
+.admin-topbar {
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(8px);
+}
+.admin-user__avatar {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+  box-shadow: 0 2px 8px rgba(11,45,89,.25);
+}
+
+/* --- Stat cards : accent dégradé + relief doux --------------------------*/
+.admin-stat-card {
+  border-radius: var(--radius-2xl) !important;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(11,45,89,.06) !important;
+  transition: box-shadow .25s ease, transform .25s ease !important;
+}
+.admin-stat-card::before {
+  content: "";
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+}
+.admin-stat-card:hover {
+  box-shadow: var(--shadow-lg) !important;
+  transform: translateY(-3px);
+}
+.admin-stat-card__icon {
+  border-radius: var(--radius-lg) !important;
+}
+.admin-stat-card__number {
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Table -----------------------------------------------------------*/
+.admin-table-wrap {
+  border-radius: var(--radius-2xl) !important;
+  overflow: hidden;
+}
+.admin-table thead tr {
+  background: linear-gradient(90deg, var(--color-primary), #123a70) !important;
+}
+.admin-table thead th { color: rgba(255,255,255,.92) !important; }
+.admin-table tbody tr:hover { background: rgba(200,168,75,.06) !important; }
+
+/* --- Status badges : plus arrondis, légèrement animés au chargement ----*/
+.status-badge {
+  border-radius: var(--radius-full) !important;
+  font-weight: var(--weight-semi);
+  letter-spacing: .01em;
+}
+
+/* --- Boutons : profitent des animations globales de editorial.css ------
+   (sweep au survol, lift, pulse) automatiquement via la classe .btn      */
+.admin-content .btn,
+.admin-login-form .btn { border-radius: var(--radius-lg); }
+
+/* --- Cards mobiles (listes) ---------------------------------------------*/
+.admin-card-row {
+  border-radius: var(--radius-xl) !important;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.admin-card-row:active { transform: scale(.98); }
+
+/* --- Login page : habillage éditorial ------------------------------------*/
+.admin-login-page {
+  background: radial-gradient(ellipse 1200px 800px at 20% 0%, rgba(30,111,217,.16), transparent 60%),
+              radial-gradient(ellipse 900px 700px at 100% 100%, rgba(200,168,75,.10), transparent 55%),
+              linear-gradient(175deg, var(--color-primary), #061428) !important;
+}
+.admin-login-card {
+  border-radius: var(--radius-2xl) !important;
+  box-shadow: var(--shadow-xl) !important;
+  border: 1px solid rgba(255,255,255,.08);
+}
+.admin-login-logo img { filter: drop-shadow(0 0 10px rgba(200,168,75,.35)); }
+.admin-login-badge {
+  display: flex; width: fit-content; margin: 0 auto var(--space-4); align-items: center; gap: .4em;
+  background: rgba(200,168,75,.12); color: var(--color-accent-light);
+  border: 1px solid rgba(200,168,75,.3); border-radius: var(--radius-full);
+  padding: .35em .9em; font-size: .72rem; font-weight: 700; letter-spacing: .04em;
+  text-transform: uppercase; margin-bottom: var(--space-4);
+}
+
+/* --- Empty state / drawer polish ----------------------------------------*/
+.admin-empty-state__icon { filter: drop-shadow(0 4px 10px rgba(11,45,89,.15)); }
+.admin-drawer { border-radius: var(--radius-2xl) 0 0 var(--radius-2xl) !important; }
+
+@media (max-width: 900px) {
+  .admin-stat-card:hover { transform: none; }
+}

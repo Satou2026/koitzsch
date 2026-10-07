@@ -1,0 +1,6 @@
+# robots.txt – SITE EN TEST : indexation bloquée sur l ensemble du site.
+# Toutes les pages portent aussi <meta name="robots" content="noindex, nofollow">.
+# Pour la mise en ligne : python3 passer-en-ligne.py
+
+User-agent: *
+Disallow: /

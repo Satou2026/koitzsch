@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta name="robots" content="noindex, nofollow" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Finanzberatung Koitzsch u. Schuchardt — Live-Chat</title>
+<meta name="description" content="Chatten Sie direkt mit einem Berater von Finanzberatung Koitzsch u. Schuchardt.">
+<meta name="theme-color" content="#0B2D59">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BL Chat">
+<meta name="api-base" content="https://api.blitzleihen.com">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-180.png">
+<link rel="icon" href="./icon-192.png">
+<style>
+  :root {
+    --primary: #0B2D59;
+    --accent: #C8A84B;
+    --bg: #F0F4FA;
+    --text: #1A1F36;
+    --muted: #4A5478;
+    --white: #ffffff;
+    --green: #22c55e;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--bg); color: var(--text);
+    overscroll-behavior: none;
+  }
+  #app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; }
+
+  /* ---------- Barre d'en-tête ---------- */
+  .topbar {
+    background: linear-gradient(120deg, var(--primary), #0d3866);
+    color: #fff;
+    padding: calc(env(safe-area-inset-top, 0px) + 14px) 16px 14px;
+    display: flex; align-items: center; gap: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.22);
+    flex-shrink: 0;
+    border-bottom: 2px solid rgba(200,168,75,0.35);
+  }
+  .topbar__logo { width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0; box-shadow: 0 0 0 2px rgba(255,255,255,.12), 0 2px 8px rgba(0,0,0,.25); }
+  .topbar__info { flex: 1; min-width: 0; }
+  .topbar__title { font-size: 16px; font-weight: 700; margin: 0; }
+  .topbar__status { font-size: 12px; color: var(--accent); display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+  .topbar__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+  .topbar__dot--off { background: #9aa5b8; }
+
+  /* ---------- Écran pré-chat (saisie du nom) ---------- */
+  #preChat {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 32px 24px; text-align: center; gap: 8px;
+  }
+  #preChat img { width: 64px; height: 64px; border-radius: 16px; margin-bottom: 12px; box-shadow: 0 4px 16px rgba(11,45,89,.18); }
+  #preChat h1 { font-size: 20px; margin: 0 0 4px; color: var(--primary); font-weight: 800; }
+  #preChat p { font-size: 14px; color: var(--muted); margin: 0 0 20px; line-height: 1.5; }
+  .field { width: 100%; max-width: 340px; text-align: left; margin-bottom: 14px; }
+  .field label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.4px; }
+  .field input {
+    width: 100%; margin-top: 6px; padding: 12px 14px; border-radius: 10px;
+    border: 1px solid #d7deea; font-size: 15px; background: #fff; color: var(--text);
+  }
+  .field input:focus { outline: 2px solid var(--primary); outline-offset: 1px; border-color: var(--primary); }
+  .btn-primary {
+    width: 100%; max-width: 340px; padding: 13px 20px; border: none; border-radius: 12px;
+    background: linear-gradient(120deg, var(--primary), #0d3866); color: #fff; font-size: 15px; font-weight: 700;
+    cursor: pointer; margin-top: 6px; box-shadow: 0 4px 14px rgba(11,45,89,.28);
+    transition: transform .18s ease, box-shadow .18s ease;
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(11,45,89,.34); }
+  .btn-primary:active { opacity: 0.9; transform: translateY(0) scale(.98); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .link-btn {
+    display: block; width: 100%; max-width: 340px; margin: 10px auto 0; background: none; border: none;
+    color: var(--primary); font-size: 12.5px; font-weight: 600; text-decoration: underline;
+    cursor: pointer; padding: 4px;
+  }
+  .hint { font-size: 12px; color: var(--muted); line-height: 1.5; text-align: left; max-width: 340px; margin: 0 auto 12px; }
+  .error-text { font-size: 12.5px; color: #dc2626; max-width: 340px; margin: 0 auto 10px; text-align: left; }
+
+  /* ---------- Écran de chat ---------- */
+  #chatScreen { flex: 1; display: none; flex-direction: column; min-height: 0; }
+  #messages {
+    flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .msg {
+    max-width: 82%; padding: 10px 14px; border-radius: 16px; font-size: 14px; line-height: 1.45;
+    white-space: pre-wrap; overflow-wrap: break-word; word-break: break-word;
+  }
+  .msg--visiteur { align-self: flex-end; background: linear-gradient(135deg, var(--primary), #0d3866); color: #fff; border-bottom-right-radius: 4px; box-shadow: 0 2px 8px rgba(11,45,89,.18); }
+  .msg--admin { align-self: flex-start; background: #fff; color: var(--text); border: 1px solid #e2e8f0; border-bottom-left-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,.04); }
+  .msg--systeme { align-self: center; background: transparent; color: var(--muted); font-size: 12px; text-align: center; max-width: 90%; }
+  .msg__meta { font-size: 10px; opacity: 0.65; margin-top: 4px; }
+
+  .msg-row { display: flex; align-items: flex-end; gap: 8px; align-self: flex-start; max-width: 92%; }
+  .msg-avatar {
+    width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0; object-fit: cover;
+    border: 1px solid #e2e8f0; background: var(--primary);
+  }
+  .msg-avatar--fallback {
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 11px; font-weight: 700;
+  }
+  .msg-auteur-nom { font-size: 11px; color: var(--muted); font-weight: 600; margin: 0 0 3px 2px; }
+
+  #composer {
+    display: flex; align-items: flex-end; gap: 8px; padding: 10px 12px;
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+    background: #fff; border-top: 1px solid #e2e8f0; flex-shrink: 0;
+  }
+  #composer textarea {
+    flex: 1; resize: none; border: 1px solid #d7deea; border-radius: 20px;
+    padding: 11px 16px; font-size: 15px; max-height: 120px; font-family: inherit;
+    background: var(--bg); color: var(--text);
+  }
+  #composer textarea:focus { outline: none; border-color: var(--primary); }
+  #sendBtn, #attachBtn, #micBtn {
+    width: 42px; height: 42px; border-radius: 50%; border: none; background: linear-gradient(135deg, var(--primary), #0d3866);
+    color: #fff; font-size: 18px; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0; transition: transform .15s ease, box-shadow .15s ease;
+    box-shadow: 0 2px 8px rgba(11,45,89,.22);
+  }
+  #sendBtn:hover, #attachBtn:hover, #micBtn:hover { transform: translateY(-2px); }
+  #attachBtn, #micBtn { background: #fff; color: var(--primary); border: 1px solid #d7deea; box-shadow: none; }
+  #micBtn.recording { background: #dc2626; color: #fff; border-color: #dc2626; animation: pulse-rec 1.2s infinite; }
+  @keyframes pulse-rec { 0%,100% { opacity: 1; } 50% { opacity: 0.55; } }
+  #sendBtn:disabled, #attachBtn:disabled, #micBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .msg-media-img { max-width: 100%; border-radius: 12px; display: block; margin-bottom: 4px; cursor: pointer; }
+  .msg-media-video { max-width: 100%; border-radius: 12px; display: block; margin-bottom: 4px; }
+  .msg-media-audio { display: block; margin-bottom: 4px; max-width: 220px; }
+  .msg-media-file {
+    display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 10px;
+    background: rgba(0,0,0,0.05); text-decoration: none; color: inherit; margin-bottom: 4px;
+  }
+  .msg-media-file__icon { font-size: 20px; }
+  .msg-media-file__nom { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* ---------- Message supprimé / modifié ---------- */
+  .msg--supprime { font-style: italic; opacity: 0.7; }
+  .msg__modifie-tag { font-size: 10px; opacity: 0.7; font-style: italic; }
+
+  /* ---------- Barre d'édition (au-dessus du composer) ---------- */
+  #editBar {
+    display: none; align-items: center; gap: 8px; padding: 8px 16px;
+    background: #eef1f8; font-size: 12.5px; color: var(--primary); flex-shrink: 0;
+  }
+  #editBar button { background: none; border: none; color: var(--muted); font-size: 17px; cursor: pointer; padding: 2px 4px; }
+
+  /* ---------- Aperçu de la pièce jointe / vocal en attente d'envoi ---------- */
+  #attachmentPreview {
+    display: none; align-items: center; gap: 10px; padding: 8px 16px;
+    background: #eef1f8; flex-shrink: 0;
+  }
+  #attachmentPreview .ap-icon { font-size: 20px; }
+  #attachmentPreview .ap-info { flex: 1; min-width: 0; font-size: 13px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #attachmentPreview audio { max-width: 100%; height: 32px; flex: 1; }
+  #attachmentPreview button { background: none; border: none; color: var(--muted); font-size: 17px; cursor: pointer; padding: 2px 6px; }
+
+  /* ---------- Menu d'actions sur un message (modifier / supprimer) ---------- */
+  #msgActionBackdrop {
+    display: none; position: fixed; inset: 0; background: rgba(10,15,30,0.4); z-index: 50;
+  }
+  #msgActionSheet {
+    display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 51;
+    background: #fff; border-radius: 16px 16px 0 0; padding-bottom: env(safe-area-inset-bottom, 0px);
+    box-shadow: 0 -6px 24px rgba(0,0,0,0.18);
+  }
+  #msgActionSheet button {
+    display: block; width: 100%; text-align: left; padding: 15px 22px; border: none;
+    background: none; font-size: 15px; color: var(--text); cursor: pointer;
+  }
+  #msgActionSheet button:active { background: #f2f4f9; }
+  #msgActionSheet .danger { color: #dc2626; }
+  #msgActionSheet .cancel { color: var(--muted); border-top: 1px solid #eef0f5; margin-top: 4px; }
+
+  #installBanner {
+    display: none; align-items: center; justify-content: space-between; gap: 10px;
+    background: linear-gradient(120deg, var(--accent), #e8c96a, var(--accent)); background-size: 220% 100%;
+    color: var(--primary); font-size: 13px; font-weight: 600;
+    padding: 10px 14px; flex-shrink: 0;
+  }
+  #installBanner button {
+    border: none; background: var(--primary); color: #fff; padding: 7px 14px;
+    border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer;
+  }
+  #installBanner .close { background: transparent; color: var(--primary); font-size: 18px; padding: 0 4px; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="topbar">
+    <img class="topbar__logo" src="./icon-192.png" alt="Finanzberatung Koitzsch u. Schuchardt">
+    <div class="topbar__info">
+      <p class="topbar__title">Finanzberatung Koitzsch u. Schuchardt</p>
+      <p class="topbar__status"><span class="topbar__dot" id="statusDot"></span><span id="statusText">Live-Chat</span></p>
+    </div>
+  </div>
+
+  <div id="installBanner">
+    <span>App installieren für schnelleren Zugriff</span>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button id="installBtn">Installieren</button>
+      <button class="close" id="installClose">✕</button>
+    </div>
+  </div>
+
+  <!-- Écran 1 : saisie du nom avant de démarrer -->
+  <div id="preChat">
+    <img src="./icon-192.png" alt="Finanzberatung Koitzsch u. Schuchardt">
+    <h1 id="preChatTitle">Willkommen bei Finanzberatung Koitzsch u. Schuchardt</h1>
+    <p id="preChatSubtitle">Stellen Sie uns Ihre Fragen direkt — ein Berater antwortet Ihnen so schnell wie möglich. Nach dem Chat erhalten Sie automatisch eine Zusammenfassung per E-Mail.</p>
+
+    <!-- Mode "démarrer" (par défaut) -->
+    <div id="modeStart">
+      <div class="field">
+        <label for="contactEmailInput">Ihre E-Mail-Adresse</label>
+        <input type="email" id="contactEmailInput" placeholder="max@beispiel.de" maxlength="190" autocomplete="email" required>
+        <p class="hint">Erforderlich — wir senden Ihnen nach Abschluss des Chats eine Zusammenfassung der Unterhaltung zu.</p>
+      </div>
+      <div class="field">
+        <label for="nameInput">Ihr Name</label>
+        <input type="text" id="nameInput" placeholder="Max Mustermann" maxlength="100" autocomplete="name">
+      </div>
+
+      <button type="button" id="toggleAccountBox" class="link-btn">🔒 Konto einrichten (optional) — für Zugriff auf jedem Gerät</button>
+
+      <div id="accountBox" style="display:none;">
+        <p class="hint">Optional: Legen Sie ein Passwort fest, um Ihre Unterhaltung (unter der oben angegebenen E-Mail-Adresse) auch auf einem anderen Gerät wiederzufinden.</p>
+        <div class="field">
+          <label for="passwordInput">Passwort</label>
+          <input type="password" id="passwordInput" placeholder="Mindestens 6 Zeichen" maxlength="100" autocomplete="new-password">
+        </div>
+      </div>
+
+      <button class="btn-primary" id="startBtn">Chat starten</button>
+      <button type="button" id="showLoginMode" class="link-btn">Bereits ein Konto? Hier auf diesem Gerät anmelden</button>
+    </div>
+
+    <!-- Mode "connexion" (autre appareil) -->
+    <div id="modeLogin" style="display:none;">
+      <div class="field">
+        <label for="loginEmailInput">E-Mail</label>
+        <input type="email" id="loginEmailInput" placeholder="max@beispiel.de" maxlength="190" autocomplete="email">
+      </div>
+      <div class="field">
+        <label for="loginPasswordInput">Passwort</label>
+        <input type="password" id="loginPasswordInput" placeholder="Ihr Passwort" maxlength="100" autocomplete="current-password">
+      </div>
+      <p id="loginError" class="error-text" style="display:none;"></p>
+      <button class="btn-primary" id="loginBtn">Anmelden</button>
+      <button type="button" id="showStartMode" class="link-btn">Zurück</button>
+    </div>
+  </div>
+
+  <!-- Écran 2 : conversation -->
+  <div id="chatScreen">
+    <div id="messages"></div>
+    <div id="editBar">
+      <span style="flex:1;">✏️ Nachricht bearbeiten</span>
+      <button id="editBarCancel" type="button" aria-label="Bearbeiten abbrechen">✕</button>
+    </div>
+    <div id="attachmentPreview"></div>
+    <div id="composer">
+      <input type="file" id="fileInput" accept="image/*,video/*,audio/*,application/pdf,application/zip" style="display:none;">
+      <button id="attachBtn" type="button" aria-label="Datei anhängen">📎</button>
+      <button id="micBtn" type="button" aria-label="Sprachnachricht"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg></button>
+      <textarea id="msgInput" rows="1" placeholder="Nachricht schreiben…" maxlength="4000"></textarea>
+      <button id="sendBtn" aria-label="Senden">➤</button>
+    </div>
+  </div>
+
+  <!-- Menu d'actions long-press sur un message (modifier / supprimer) -->
+  <div id="msgActionBackdrop"></div>
+  <div id="msgActionSheet">
+    <button id="actionEditBtn" type="button">✏️ Bearbeiten</button>
+    <button id="actionDeleteBtn" type="button" class="danger">🗑️ Löschen</button>
+    <button id="actionCancelBtn" type="button" class="cancel">Abbrechen</button>
+  </div>
+
+</div>
+
+<script>
+(function() {
+  "use strict";
+
+  // Mêmes clés que le widget du site principal : une conversation démarrée
+  // sur le site continue ici, et vice-versa (même origine = même localStorage).
+  var STORAGE_VISITEUR_ID = "blitz_chat_visiteur_id";
+  var STORAGE_NOM = "blitz_chat_nom";
+  var STORAGE_EMAIL = "blitz_chat_email";
+  var POLL_INTERVAL_MS = 6000;
+
+  var state = {
+    visiteurId: null,
+    nom: "",
+    email: "",
+    pollTimer: null
+  };
+
+  function getApiBase() {
+    var meta = document.querySelector('meta[name="api-base"]');
+    return (meta && meta.getAttribute("content") || "https://api.blitzleihen.com").replace(/\/$/, "");
+  }
+
+  function obtenirVisiteurId() {
+    var id = localStorage.getItem(STORAGE_VISITEUR_ID);
+    if (id) return id;
+    if (window.crypto && typeof window.crypto.randomUUID === "function") {
+      id = window.crypto.randomUUID();
+    } else {
+      id = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0;
+        var v = c === "x" ? r : (r & 3 | 8);
+        return v.toString(16);
+      });
+    }
+    localStorage.setItem(STORAGE_VISITEUR_ID, id);
+    return id;
+  }
+
+  function obtenirLocalisation() {
+    var cached = sessionStorage.getItem("blitz_visitor_location");
+    if (cached) {
+      try { return Promise.resolve(JSON.parse(cached)); } catch (e) {}
+    }
+    function requeteAvecDelai(url, ms) {
+      var controller = new AbortController();
+      var timer = setTimeout(function() { controller.abort(); }, ms);
+      return fetch(url, { signal: controller.signal }).finally(function() { clearTimeout(timer); });
+    }
+    return requeteAvecDelai("https://ipapi.co/json/", 4000).then(function(r) {
+      return r.json();
+    }).then(function(d) {
+      var loc = {
+        city: d.city || "", region: d.region || "", country: d.country_name || "",
+        display: [d.city, d.country_name].filter(Boolean).join(", ")
+      };
+      sessionStorage.setItem("blitz_visitor_location", JSON.stringify(loc));
+      return loc;
+    }).catch(function() {
+      return { city: "", region: "", country: "", display: "" };
+    });
+  }
+
+  function escapeHtml(s) {
+    var d = document.createElement("div");
+    d.textContent = s || "";
+    return d.innerHTML;
+  }
+
+  function formatHeure(iso) {
+    try {
+      var d = new Date(iso);
+      return d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+    } catch (e) { return ""; }
+  }
+
+  function scrollBas() {
+    var el = document.getElementById("messages");
+    el.scrollTop = el.scrollHeight;
+  }
+
+  function initiales(nom) {
+    if (!nom) return "?";
+    var parts = nom.trim().split(/\s+/);
+    return ((parts[0] || "")[0] + ((parts[1] || "")[0] || "")).toUpperCase();
+  }
+
+  function formatTaille(o) {
+    if (!o) return "";
+    if (o < 1024 * 1024) return Math.round(o / 1024) + " KB";
+    return (o / (1024 * 1024)).toFixed(1) + " MB";
+  }
+
+  function renderMediaHtml(m) {
+    if (m.typeMessage !== "media" || !m.mediaUrl) return "";
+    var type = m.mediaType || "";
+    if (type.indexOf("image/") === 0) {
+      return '<a href="' + m.mediaUrl + '" target="_blank" rel="noopener"><img class="msg-media-img" src="' + m.mediaUrl + '" alt="' + escapeHtml(m.mediaNom || "Bild") + '"></a>';
+    }
+    if (type.indexOf("video/") === 0) {
+      return '<video class="msg-media-video" controls src="' + m.mediaUrl + '"></video>';
+    }
+    if (type.indexOf("audio/") === 0) {
+      return '<audio class="msg-media-audio" controls src="' + m.mediaUrl + '"></audio>';
+    }
+    var icone = type === "application/pdf" ? "📄" : "🗜️";
+    return '<a class="msg-media-file" href="' + m.mediaUrl + '" target="_blank" rel="noopener" download>' +
+      '<span class="msg-media-file__icon">' + icone + '</span>' +
+      '<span class="msg-media-file__nom">' + escapeHtml(m.mediaNom || "Datei") + ' (' + formatTaille(m.mediaTaille) + ')</span>' +
+      '</a>';
+  }
+
+  function contenuBulleHtml(m) {
+    if (m.supprime) {
+      return '<span class="msg--supprime">🚫 Nachricht gelöscht</span><div class="msg__meta">' + formatHeure(m.createdAt) + "</div>";
+    }
+    var texteHtml = m.texte ? escapeHtml(m.texte).replace(/\n/g, "<br>") : "";
+    var modifieTag = m.modifie ? ' <span class="msg__modifie-tag">(bearbeitet)</span>' : "";
+    return renderMediaHtml(m) + texteHtml + '<div class="msg__meta">' + formatHeure(m.createdAt) + modifieTag + "</div>";
+  }
+
+  // Construit (ou reconstruit) le nœud DOM d'un message. Utilisé aussi bien
+  // pour un nouveau message que pour rafraîchir l'affichage d'un message
+  // existant après modification/suppression (voir afficherMessage()).
+  function construireMessageNode(m) {
+    if (m.expediteur === "admin") {
+      var row = document.createElement("div");
+      row.className = "msg-row msg-row--admin";
+      row.id = "msg-" + m._id;
+
+      var avatar;
+      if (m.auteurAvatar) {
+        avatar = document.createElement("img");
+        avatar.className = "msg-avatar";
+        avatar.src = m.auteurAvatar;
+        avatar.alt = m.auteurNom || "Berater";
+      } else {
+        avatar = document.createElement("div");
+        avatar.className = "msg-avatar msg-avatar--fallback";
+        avatar.textContent = initiales(m.auteurNom);
+      }
+
+      var col = document.createElement("div");
+      col.style.display = "flex";
+      col.style.flexDirection = "column";
+      col.style.alignItems = "flex-start";
+      col.style.maxWidth = "82%";
+
+      if (m.auteurNom) {
+        var nomEl = document.createElement("div");
+        nomEl.className = "msg-auteur-nom";
+        nomEl.textContent = m.auteurNom;
+        col.appendChild(nomEl);
+      }
+
+      var bulle = document.createElement("div");
+      bulle.className = "msg msg--admin";
+      bulle.style.maxWidth = "none";
+      bulle.innerHTML = contenuBulleHtml(m);
+      col.appendChild(bulle);
+
+      row.appendChild(avatar);
+      row.appendChild(col);
+      return row;
+    }
+
+    var div = document.createElement("div");
+    var classe = m.expediteur === "visiteur" ? "msg--visiteur" : "msg--systeme";
+    div.className = "msg " + classe;
+    div.id = "msg-" + m._id;
+    div.innerHTML = contenuBulleHtml(m);
+    // Seuls ses propres messages (visiteur) sont modifiables/supprimables
+    // par le client — jamais un message système, jamais un message admin.
+    if (m.expediteur === "visiteur" && !m.supprime) {
+      attacherAppuiLong(div, m);
+    }
+    return div;
+  }
+
+  function afficherMessage(m) {
+    var container = document.getElementById("messages");
+    var existant = document.getElementById("msg-" + m._id);
+    var node = construireMessageNode(m);
+    if (existant) {
+      existant.replaceWith(node);
+    } else {
+      container.appendChild(node);
+    }
+  }
+
+  function renderHistorique(messages, seulementNouveaux) {
+    if (!seulementNouveaux) {
+      document.getElementById("messages").innerHTML = "";
+    }
+    (messages || []).forEach(afficherMessage);
+    scrollBas();
+  }
+
+  // ---------- Actions sur un message (modifier / supprimer), déclenchées par un appui long ----------
+  var messageEnAction = null;
+  var etatEdition = { messageId: null };
+
+  function attacherAppuiLong(el, message) {
+    var timer = null;
+    function demarrer() {
+      timer = setTimeout(function() {
+        timer = null;
+        if (navigator.vibrate) { try { navigator.vibrate(15); } catch (e) {} }
+        ouvrirActionsMessage(message);
+      }, 450);
+    }
+    function annuler() {
+      if (timer) { clearTimeout(timer); timer = null; }
+    }
+    el.addEventListener("pointerdown", demarrer);
+    el.addEventListener("pointerup", annuler);
+    el.addEventListener("pointerleave", annuler);
+    el.addEventListener("pointercancel", annuler);
+    el.addEventListener("contextmenu", function(e) {
+      e.preventDefault();
+      ouvrirActionsMessage(message);
+    });
+  }
+
+  function ouvrirActionsMessage(m) {
+    messageEnAction = m;
+    document.getElementById("actionEditBtn").style.display = (m.typeMessage !== "media") ? "block" : "none";
+    document.getElementById("msgActionBackdrop").style.display = "block";
+    document.getElementById("msgActionSheet").style.display = "block";
+  }
+  function fermerActionsMessage() {
+    messageEnAction = null;
+    document.getElementById("msgActionBackdrop").style.display = "none";
+    document.getElementById("msgActionSheet").style.display = "none";
+  }
+
+  function demarrerEdition(m) {
+    etatEdition.messageId = m._id;
+    var input = document.getElementById("msgInput");
+    input.value = m.texte;
+    ajusterHauteur(input);
+    input.focus();
+    document.getElementById("editBar").style.display = "flex";
+  }
+  function annulerEdition() {
+    etatEdition.messageId = null;
+    document.getElementById("msgInput").value = "";
+    document.getElementById("editBar").style.display = "none";
+  }
+
+  function supprimerMessage(m) {
+    fetch(getApiBase() + "/api/chat/conversations/" + state.visiteurId + "/message/" + m._id, {
+      method: "DELETE"
+    }).then(function(r) { return r.json(); }).then(function(json) {
+      if (json && json.success && json.data && json.data.message) {
+        afficherMessage(json.data.message);
+      }
+    }).catch(function() {});
+  }
+
+  function majStatut(adminAssigne) {
+    var dot = document.getElementById("statusDot");
+    var txt = document.getElementById("statusText");
+    if (adminAssigne && adminAssigne.name) {
+      dot.classList.remove("topbar__dot--off");
+      txt.textContent = adminAssigne.name + " ist online";
+    } else {
+      dot.classList.add("topbar__dot--off");
+      txt.textContent = "Live-Chat — wartet auf Berater";
+    }
+  }
+
+  function demarrerPolling() {
+    if (state.pollTimer) return;
+    var echecs = 0, saut = 0;
+    state.pollTimer = setInterval(function() {
+      if (saut > 0) { saut -= 1; return; }
+      fetch(getApiBase() + "/api/chat/conversations/" + state.visiteurId).then(function(r) {
+        if (!r.ok) throw new Error("http_" + r.status);
+        return r.json();
+      }).then(function(json) {
+        echecs = 0;
+        if (!json || !json.success) return;
+        if (json.data.conversation) majStatut(json.data.conversation.adminAssigne);
+        renderHistorique(json.data.messages || [], true);
+      }).catch(function() {
+        echecs = Math.min(echecs + 1, 6);
+        saut = echecs;
+      });
+    }, POLL_INTERVAL_MS);
+  }
+
+  function envoyerMessage() {
+    // Une pièce jointe (fichier ou vocal) est en attente : le bouton
+    // "Envoyer" déclenche son upload plutôt que le texte du champ, tant
+    // qu'elle n'a pas été annulée avec le ✕ de l'aperçu.
+    if (state.pieceJointeEnAttente) {
+      envoyerPieceJointeEnAttente();
+      return;
+    }
+
+    var input = document.getElementById("msgInput");
+    var texte = input.value.trim();
+    if (!texte) return;
+    var btn = document.getElementById("sendBtn");
+
+    if (etatEdition.messageId) {
+      var idAModifier = etatEdition.messageId;
+      btn.disabled = true;
+      fetch(getApiBase() + "/api/chat/conversations/" + state.visiteurId + "/message/" + idAModifier, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ texte: texte })
+      }).then(function(r) { return r.json(); }).then(function(json) {
+        if (json && json.success && json.data && json.data.message) {
+          afficherMessage(json.data.message);
+          annulerEdition();
+        } else {
+          alert((json && json.message) || "Nachricht konnte nicht bearbeitet werden.");
+        }
+      }).catch(function() {
+        alert("Verbindung fehlgeschlagen. Bitte erneut versuchen.");
+      }).finally(function() {
+        btn.disabled = false;
+      });
+      return;
+    }
+
+    btn.disabled = true;
+    input.value = "";
+    ajusterHauteur(input);
+    fetch(getApiBase() + "/api/chat/conversations/" + state.visiteurId + "/message", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ texte: texte })
+    }).then(function(r) { return r.json(); }).then(function(json) {
+      if (json && json.success && json.data && json.data.message) {
+        afficherMessage(json.data.message);
+        scrollBas();
+      }
+    }).catch(function() {
+      var div = document.createElement("div");
+      div.className = "msg msg--systeme";
+      div.textContent = "Nachricht konnte nicht gesendet werden. Bitte erneut versuchen.";
+      document.getElementById("messages").appendChild(div);
+      scrollBas();
+    }).finally(function() {
+      btn.disabled = false;
+    });
+  }
+
+  // ---------- Pièce jointe (fichier ou vocal) : aperçu avant envoi ----------
+  // Contrairement à avant, sélectionner un fichier ou terminer un
+  // enregistrement vocal ne l'envoie plus automatiquement : un aperçu
+  // s'affiche et seul un appui sur "Envoyer" déclenche réellement l'upload.
+  state.pieceJointeEnAttente = null; // { file, objectUrl }
+
+  function afficherApercuPieceJointe(file) {
+    annulerPieceJointeEnAttente();
+    var objectUrl = URL.createObjectURL(file);
+    state.pieceJointeEnAttente = { file: file, objectUrl: objectUrl };
+
+    var preview = document.getElementById("attachmentPreview");
+    var estAudio = file.type.indexOf("audio/") === 0;
+    if (estAudio) {
+      preview.innerHTML = '<span class="ap-icon">🎤</span><audio controls src="' + objectUrl + '"></audio><button id="cancelAttachmentBtn" type="button" aria-label="Verwerfen">✕</button>';
+    } else {
+      var icone = file.type.indexOf("image/") === 0 ? "🖼️" : file.type.indexOf("video/") === 0 ? "🎬" : file.type === "application/pdf" ? "📄" : "🗜️";
+      preview.innerHTML = '<span class="ap-icon">' + icone + '</span><span class="ap-info">' + escapeHtml(file.name) + " (" + formatTaille(file.size) + ')</span><button id="cancelAttachmentBtn" type="button" aria-label="Verwerfen">✕</button>';
+    }
+    preview.style.display = "flex";
+    document.getElementById("cancelAttachmentBtn").addEventListener("click", annulerPieceJointeEnAttente);
+  }
+
+  function annulerPieceJointeEnAttente() {
+    if (state.pieceJointeEnAttente) {
+      URL.revokeObjectURL(state.pieceJointeEnAttente.objectUrl);
+      state.pieceJointeEnAttente = null;
+    }
+    document.getElementById("attachmentPreview").style.display = "none";
+    document.getElementById("attachmentPreview").innerHTML = "";
+  }
+
+  function envoyerPieceJointeEnAttente() {
+    var piece = state.pieceJointeEnAttente;
+    if (!piece) return;
+    state.pieceJointeEnAttente = null;
+    document.getElementById("attachmentPreview").style.display = "none";
+    document.getElementById("attachmentPreview").innerHTML = "";
+    envoyerFichier(piece.file);
+    URL.revokeObjectURL(piece.objectUrl);
+  }
+
+  function envoyerFichier(file) {
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      var divErr = document.createElement("div");
+      divErr.className = "msg msg--systeme";
+      divErr.textContent = "Datei zu groß (max. 10 MB).";
+      document.getElementById("messages").appendChild(divErr);
+      scrollBas();
+      return;
+    }
+    var fd = new FormData();
+    fd.append("file", file);
+    var attachBtn = document.getElementById("attachBtn");
+    var micBtn = document.getElementById("micBtn");
+    attachBtn.disabled = true;
+    micBtn.disabled = true;
+    fetch(getApiBase() + "/api/chat/conversations/" + state.visiteurId + "/media", {
+      method: "POST",
+      body: fd
+    }).then(function(r) { return r.json(); }).then(function(json) {
+      if (json && json.success && json.data && json.data.message) {
+        afficherMessage(json.data.message);
+        scrollBas();
+      } else {
+        throw new Error("upload_failed");
+      }
+    }).catch(function() {
+      var div = document.createElement("div");
+      div.className = "msg msg--systeme";
+      div.textContent = "Datei konnte nicht gesendet werden. Bitte erneut versuchen.";
+      document.getElementById("messages").appendChild(div);
+      scrollBas();
+    }).finally(function() {
+      attachBtn.disabled = false;
+      micBtn.disabled = false;
+    });
+  }
+
+  function ajusterHauteur(el) {
+    el.style.height = "auto";
+    el.style.height = Math.min(el.scrollHeight, 120) + "px";
+  }
+
+  function afficherEcranChat() {
+    document.getElementById("preChat").style.display = "none";
+    document.getElementById("chatScreen").style.display = "flex";
+    document.getElementById("msgInput").focus();
+  }
+
+  function demarrerChat(compte) {
+    afficherEcranChat();
+    state.visiteurId = obtenirVisiteurId();
+
+    obtenirLocalisation().then(function(loc) {
+      fetch(getApiBase() + "/api/chat/conversations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          visiteurId: state.visiteurId,
+          nom: state.nom,
+          email: state.email,
+          pageOrigine: "chat-app",
+          visiteurVille: loc.city,
+          visiteurRegion: loc.region,
+          visiteurPays: loc.country,
+          visiteurLocalisationAffichage: loc.display
+        })
+      }).then(function(r) { return r.json(); }).then(function(json) {
+        if (json && json.success) {
+          renderHistorique(json.data.messages || [], false);
+          if (json.data.conversation) majStatut(json.data.conversation.adminAssigne);
+        }
+        demarrerPolling();
+        // Compte optionnel : lie l'email/mot de passe à cette conversation.
+        if (compte && compte.email && compte.password) {
+          fetch(getApiBase() + "/api/chat/account/set", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ visiteurId: state.visiteurId, email: compte.email, password: compte.password })
+          }).then(function(r) { return r.json(); }).then(function(json2) {
+            if (!json2 || !json2.success) {
+              var div = document.createElement("div");
+              div.className = "msg msg--systeme";
+              div.textContent = (json2 && json2.message) || "Konto konnte nicht eingerichtet werden.";
+              document.getElementById("messages").appendChild(div);
+              scrollBas();
+            }
+          }).catch(function() {});
+        }
+      }).catch(function() {
+        demarrerPolling();
+      });
+    });
+  }
+
+  function reprendreConversation(visiteurId, conversation, messages) {
+    localStorage.setItem(STORAGE_VISITEUR_ID, visiteurId);
+    if (conversation && conversation.nom) {
+      localStorage.setItem(STORAGE_NOM, conversation.nom);
+    }
+    state.visiteurId = visiteurId;
+    afficherEcranChat();
+    renderHistorique(messages || [], false);
+    if (conversation) majStatut(conversation.adminAssigne);
+    demarrerPolling();
+  }
+
+  // ---------- Initialisation ----------
+  document.addEventListener("DOMContentLoaded", function() {
+    var nomConnu = localStorage.getItem(STORAGE_NOM);
+    var emailConnu = localStorage.getItem(STORAGE_EMAIL);
+    if (nomConnu) {
+      document.getElementById("nameInput").value = nomConnu;
+      state.nom = nomConnu;
+    }
+    if (emailConnu) {
+      document.getElementById("contactEmailInput").value = emailConnu;
+      state.email = emailConnu;
+    }
+
+    document.getElementById("toggleAccountBox").addEventListener("click", function() {
+      var box = document.getElementById("accountBox");
+      box.style.display = box.style.display === "none" ? "block" : "none";
+    });
+
+    document.getElementById("showLoginMode").addEventListener("click", function() {
+      document.getElementById("modeStart").style.display = "none";
+      document.getElementById("modeLogin").style.display = "block";
+      document.getElementById("preChatTitle").textContent = "Anmelden";
+      document.getElementById("preChatSubtitle").textContent = "Melden Sie sich mit E-Mail und Passwort an, um Ihre bisherige Unterhaltung wiederzufinden.";
+    });
+    document.getElementById("showStartMode").addEventListener("click", function() {
+      document.getElementById("modeLogin").style.display = "none";
+      document.getElementById("modeStart").style.display = "block";
+      document.getElementById("preChatTitle").textContent = "Willkommen bei Finanzberatung Koitzsch u. Schuchardt";
+      document.getElementById("preChatSubtitle").textContent = "Stellen Sie uns Ihre Fragen direkt — ein Berater antwortet Ihnen so schnell wie möglich. Nach dem Chat erhalten Sie automatisch eine Zusammenfassung per E-Mail.";
+    });
+
+    document.getElementById("startBtn").addEventListener("click", function() {
+      var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      var email = document.getElementById("contactEmailInput").value.trim();
+      if (!email || !emailRegex.test(email)) {
+        document.getElementById("contactEmailInput").focus();
+        alert("Bitte geben Sie eine gültige E-Mail-Adresse ein. Sie ist erforderlich, damit wir Ihnen nach dem Chat eine Zusammenfassung zusenden können.");
+        return;
+      }
+      var nom = document.getElementById("nameInput").value.trim();
+      if (!nom) {
+        document.getElementById("nameInput").focus();
+        return;
+      }
+      var accountVisible = document.getElementById("accountBox").style.display !== "none";
+      var password = accountVisible ? document.getElementById("passwordInput").value : "";
+
+      if (accountVisible && password && password.length < 6) {
+        alert("Das Passwort muss mindestens 6 Zeichen lang sein — oder lassen Sie das Feld leer.");
+        return;
+      }
+
+      state.nom = nom;
+      state.email = email;
+      localStorage.setItem(STORAGE_NOM, nom);
+      localStorage.setItem(STORAGE_EMAIL, email);
+      demarrerChat(password ? { email: email, password: password } : null);
+    });
+
+    document.getElementById("loginBtn").addEventListener("click", function() {
+      var email = document.getElementById("loginEmailInput").value.trim();
+      var password = document.getElementById("loginPasswordInput").value;
+      var errorEl = document.getElementById("loginError");
+      errorEl.style.display = "none";
+      if (!email || !password) {
+        errorEl.textContent = "Bitte E-Mail und Passwort eingeben.";
+        errorEl.style.display = "block";
+        return;
+      }
+      var btn = this;
+      btn.disabled = true;
+      fetch(getApiBase() + "/api/chat/account/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email, password: password })
+      }).then(function(r) { return r.json(); }).then(function(json) {
+        btn.disabled = false;
+        if (!json || !json.success) {
+          errorEl.textContent = (json && json.message) || "Anmeldung fehlgeschlagen.";
+          errorEl.style.display = "block";
+          return;
+        }
+        reprendreConversation(json.data.visiteurId, json.data.conversation, json.data.messages);
+      }).catch(function() {
+        btn.disabled = false;
+        errorEl.textContent = "Verbindung fehlgeschlagen. Bitte erneut versuchen.";
+        errorEl.style.display = "block";
+      });
+    });
+
+    document.getElementById("msgInput").addEventListener("input", function() {
+      ajusterHauteur(this);
+    });
+    document.getElementById("msgInput").addEventListener("keydown", function(e) {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        envoyerMessage();
+      }
+    });
+    document.getElementById("sendBtn").addEventListener("click", envoyerMessage);
+
+    document.getElementById("attachBtn").addEventListener("click", function() {
+      document.getElementById("fileInput").click();
+    });
+    document.getElementById("fileInput").addEventListener("change", function(e) {
+      var file = e.target.files[0];
+      if (file) afficherApercuPieceJointe(file);
+      e.target.value = "";
+    });
+
+    var mediaRecorder = null;
+    var audioChunks = [];
+    document.getElementById("micBtn").addEventListener("click", function() {
+      var btn = this;
+      if (mediaRecorder && mediaRecorder.state === "recording") {
+        mediaRecorder.stop();
+        return;
+      }
+      if (!navigator.mediaDevices || !window.MediaRecorder) {
+        var divNo = document.createElement("div");
+        divNo.className = "msg msg--systeme";
+        divNo.textContent = "Sprachnachrichten werden von diesem Browser nicht unterstützt.";
+        document.getElementById("messages").appendChild(divNo);
+        scrollBas();
+        return;
+      }
+      navigator.mediaDevices.getUserMedia({ audio: true }).then(function(stream) {
+        audioChunks = [];
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.ondataavailable = function(e) { audioChunks.push(e.data); };
+        mediaRecorder.onstop = function() {
+          stream.getTracks().forEach(function(t) { t.stop(); });
+          btn.classList.remove("recording");
+          var blob = new Blob(audioChunks, { type: "audio/webm" });
+          var fichier = new File([blob], "sprachnachricht.webm", { type: "audio/webm" });
+          // On affiche juste un aperçu écoutable : l'envoi réel n'a lieu que
+          // si l'utilisateur appuie ensuite sur "Envoyer".
+          afficherApercuPieceJointe(fichier);
+        };
+        mediaRecorder.start();
+        btn.classList.add("recording");
+      }).catch(function() {
+        var divMic = document.createElement("div");
+        divMic.className = "msg msg--systeme";
+        divMic.textContent = "Mikrofonzugriff nicht möglich.";
+        document.getElementById("messages").appendChild(divMic);
+        scrollBas();
+      });
+    });
+
+    document.getElementById("editBarCancel").addEventListener("click", annulerEdition);
+    document.getElementById("msgActionBackdrop").addEventListener("click", fermerActionsMessage);
+    document.getElementById("actionCancelBtn").addEventListener("click", fermerActionsMessage);
+    document.getElementById("actionEditBtn").addEventListener("click", function() {
+      var m = messageEnAction;
+      fermerActionsMessage();
+      if (m) demarrerEdition(m);
+    });
+    document.getElementById("actionDeleteBtn").addEventListener("click", function() {
+      var m = messageEnAction;
+      fermerActionsMessage();
+      if (m && confirm("Diese Nachricht für alle löschen?")) supprimerMessage(m);
+    });
+
+    // Si un visiteur revient (id + nom + email déjà connus), on rentre
+    // directement dans le chat. L'email est requis ici aussi : sans lui,
+    // des données locales anciennes (nom seul, ex. avant que l'email ne
+    // devienne obligatoire) déclencheraient une reprise silencieuse.
+    if (nomConnu && emailConnu && localStorage.getItem(STORAGE_VISITEUR_ID)) {
+      afficherEcranChat();
+      state.visiteurId = obtenirVisiteurId();
+      fetch(getApiBase() + "/api/chat/conversations/" + state.visiteurId).then(function(r) {
+        if (!r.ok) throw new Error("conversation_introuvable");
+        return r.json();
+      }).then(function(json) {
+        if (!json || !json.success) throw new Error("reponse_invalide");
+        renderHistorique(json.data.messages || [], false);
+        if (json.data.conversation) majStatut(json.data.conversation.adminAssigne);
+        demarrerPolling();
+      }).catch(function() {
+        // Conversation introuvable côté serveur (ex. données locales
+        // obsolètes ou base réinitialisée) : on revient proprement à
+        // l'écran de pré-chat plutôt que de rester bloqué sur un
+        // écran de chat vide et sans conversation active.
+        document.getElementById("chatScreen").style.display = "none";
+        document.getElementById("preChat").style.display = "flex";
+      });
+    }
+  });
+
+  // ---------- PWA : installation ----------
+  var deferredPrompt = null;
+  window.addEventListener("beforeinstallprompt", function(e) {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (!sessionStorage.getItem("blitz_chat_install_dismissed")) {
+      document.getElementById("installBanner").style.display = "flex";
+    }
+  });
+  document.addEventListener("DOMContentLoaded", function() {
+    document.getElementById("installBtn").addEventListener("click", function() {
+      document.getElementById("installBanner").style.display = "none";
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt = null;
+      }
+    });
+    document.getElementById("installClose").addEventListener("click", function() {
+      document.getElementById("installBanner").style.display = "none";
+      sessionStorage.setItem("blitz_chat_install_dismissed", "1");
+    });
+  });
+
+  // ---------- Service worker ----------
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function() {
+      navigator.serviceWorker.register("./sw.js").catch(function() {});
+    });
+  }
+})();
+</script>
+</body>
+</html>

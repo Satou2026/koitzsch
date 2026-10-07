@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="api-base" content="https://api.blitzleihen.com" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Blog – Finanzberatung Koitzsch u. Schuchardt Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../../css/global.css" />
+    <link rel="stylesheet" href="../../css/components.css" />
+    <link rel="stylesheet" href="../../css/admin.css" />
+    <link rel="stylesheet" href="../../css/editorial.css" />
+    <link rel="stylesheet" href="../css/admin-editorial.css" />
+    <link rel="stylesheet" href="../../css/blog.css" />
+    <link rel="icon" type="image/webp" href="../../logo-ks.webp" />
+    <style>
+      .blog-status { display:inline-block; padding:2px 10px; border-radius:var(--radius-full); font-size:.7rem; font-weight:700; }
+      .blog-status--published { background:rgba(26,122,74,.14); color:var(--color-success); }
+      .blog-status--draft { background:rgba(200,131,26,.14); color:var(--color-warning); }
+      .blog-row { display:flex; align-items:center; gap:var(--space-4); padding:var(--space-4); background:#fff; border:1px solid var(--color-border); border-radius:var(--radius-lg); margin-bottom:var(--space-3); cursor:pointer; transition:box-shadow .15s; }
+      .blog-row:hover { box-shadow:0 6px 18px rgba(11,45,89,.1); }
+      .blog-row__thumb { width:84px; height:56px; border-radius:8px; background:linear-gradient(135deg,var(--color-primary),var(--color-primary-light)); object-fit:cover; flex:0 0 auto; }
+      .blog-row__main { min-width:0; flex:1; }
+      .blog-row__title { font-weight:700; color:var(--color-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+      .blog-row__sub { font-size:var(--text-xs); color:var(--color-text-muted); display:flex; gap:var(--space-3); flex-wrap:wrap; margin-top:2px; }
+      .blog-row__actions { display:flex; gap:var(--space-2); flex:0 0 auto; }
+      @media (max-width: 720px) { .blog-row { flex-wrap:wrap; } .blog-row__thumb { display:none; } .blog-row__actions { width:100%; } }
+
+      .blog-form { display:grid; gap:var(--space-5); max-width:1000px; }
+      .blog-field label { display:block; font-weight:600; font-size:var(--text-sm); color:var(--color-primary); margin-bottom:6px; }
+      .blog-field input[type=text], .blog-field textarea, .blog-field select {
+        width:100%; padding:10px 12px; border:1px solid var(--color-border); border-radius:var(--radius-md,8px);
+        font:var(--text-base)/1.4 var(--font-body); background:#fff; color:var(--color-text);
+      }
+      .blog-field textarea { min-height:84px; resize:vertical; }
+      .blog-hint { font-size:var(--text-xs); color:var(--color-text-muted); margin-top:4px; display:flex; justify-content:space-between; gap:10px; }
+      .blog-hint .over { color:var(--color-error); font-weight:700; }
+      .blog-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:var(--space-4); }
+      @media (max-width: 720px) { .blog-grid-2 { grid-template-columns:1fr; } }
+      .blog-cover { display:flex; gap:var(--space-4); align-items:flex-start; flex-wrap:wrap; }
+      .blog-cover img { width:220px; max-width:100%; aspect-ratio:16/9; object-fit:cover; border-radius:10px; border:1px solid var(--color-border); }
+      .blog-seo { border:1px solid var(--color-border); border-radius:var(--radius-lg); background:#fff; }
+      .blog-seo > summary { cursor:pointer; padding:var(--space-3) var(--space-4); font-weight:700; color:var(--color-primary); }
+      .blog-seo > div { padding:0 var(--space-4) var(--space-4); display:grid; gap:var(--space-4); }
+      .blog-savebar { position:sticky; bottom:0; z-index:20; display:flex; gap:var(--space-3); flex-wrap:wrap; align-items:center; padding:var(--space-3) var(--space-4); background:rgba(255,255,255,.96); border:1px solid var(--color-border); border-radius:var(--radius-lg); box-shadow:0 -6px 20px rgba(11,45,89,.1); }
+      .blog-savebar .grow { flex:1; font-size:var(--text-sm); color:var(--color-text-muted); }
+      .blog-preview .blog-article__head, .blog-preview .blog-article__body { padding-left:0; padding-right:0; }
+      #blogEditorView { display:none; }
+    </style>
+  </head>
+  <body class="admin-body">
+    <div class="admin-layout">
+      <aside class="admin-sidebar" id="adminSidebar" role="navigation" aria-label="Administration">
+        <div class="admin-sidebar__header">
+          <img src="../../logo-ks.webp" alt="Finanzberatung Koitzsch u. Schuchardt" class="admin-sidebar__logo" />
+        </div>
+
+        <nav class="admin-nav">
+          <span class="admin-nav__section-title">Hauptmenü</span>
+          <a href="dashboard.html" class="admin-nav__link"><span class="admin-nav__icon">📊</span> Dashboard</a>
+          <a href="dashboard.html#demandes" class="admin-nav__link"><span class="admin-nav__icon">📋</span> Alle Anträge</a>
+          <a href="dashboard.html#neu" class="admin-nav__link">
+            <span class="admin-nav__icon">🆕</span> Neue Anträge
+            <span id="newCount" style="margin-left:auto;background:var(--color-accent);color:white;border-radius:var(--radius-full);padding:2px 8px;font-size:0.65rem;font-weight:700;">0</span>
+          </a>
+          <a href="chat.html" class="admin-nav__link">
+            <span class="admin-nav__icon">💬</span> Live-Chat
+            <span id="chatUnreadCount" style="margin-left:auto;background:var(--color-accent);color:white;border-radius:var(--radius-full);padding:2px 8px;font-size:0.65rem;font-weight:700;">0</span>
+          </a>
+
+          <span class="admin-nav__section-title">Verwaltung</span>
+          <a href="kunden.html" class="admin-nav__link"><span class="admin-nav__icon">👥</span> Kunden</a>
+          <a href="kontakt.html" class="admin-nav__link">
+            <span class="admin-nav__icon">✉️</span> Kontakt
+            <span id="kontaktCount" style="margin-left:auto;background:var(--color-accent);color:white;border-radius:var(--radius-full);padding:2px 8px;font-size:0.65rem;font-weight:700;">0</span>
+          </a>
+          <a href="avis.html" class="admin-nav__link"><span class="admin-nav__icon">⭐</span> Bewertungen</a>
+          <a href="blog.html" class="admin-nav__link active"><span class="admin-nav__icon">✍️</span> Blog</a>
+          <a href="#" class="admin-nav__link" id="navEmailsSoon"><span class="admin-nav__icon">📧</span> E-Mails</a>
+          <a href="einstellungen.html" class="admin-nav__link"><span class="admin-nav__icon">⚙️</span> Einstellungen</a>
+
+          <span class="admin-nav__section-title">System</span>
+          <a href="../index.html" class="admin-nav__link" target="_blank"><span class="admin-nav__icon">🌐</span> Website anzeigen</a>
+          <a href="#" class="admin-nav__link" id="logoutBtn"><span class="admin-nav__icon">🚪</span> Abmelden</a>
+        </nav>
+
+        <div class="admin-sidebar__footer">
+          <div class="admin-user">
+            <div class="admin-user__avatar" id="userAvatar">A</div>
+            <div>
+              <div class="admin-user__name" id="userName">Administrator</div>
+              <div class="admin-user__role">Super Admin</div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <div class="admin-sidebar-backdrop" id="sidebarBackdrop"></div>
+
+      <div class="admin-content">
+        <header class="admin-topbar">
+          <button id="sidebarToggle" style="display:none;background:none;border:none;cursor:pointer;font-size:1.3rem;color:var(--color-primary);margin-right:var(--space-4);" aria-label="Menü öffnen">☰</button>
+          <h1 class="admin-topbar__title" id="topTitle">Blog</h1>
+          <div class="admin-topbar__actions">
+            <button class="btn btn-primary btn-sm" id="newPostBtn" type="button" style="white-space:nowrap;">＋ Neuer Artikel</button>
+            <div class="admin-user__avatar" id="topbarAvatar" style="cursor:pointer;" title="Abmelden" onclick="logout()">A</div>
+          </div>
+        </header>
+
+        <main class="admin-main" id="adminMain">
+          <!-- ============ LISTE ============ -->
+          <div id="blogListView">
+            <div class="admin-stats-grid">
+              <div class="admin-stat-card"><div class="admin-stat-card__header"><span class="admin-stat-card__label">Artikel gesamt</span><div class="admin-stat-card__icon admin-stat-card__icon--blue">✍️</div></div><div class="admin-stat-card__number" id="statTotal">—</div></div>
+              <div class="admin-stat-card"><div class="admin-stat-card__header"><span class="admin-stat-card__label">Veröffentlicht</span><div class="admin-stat-card__icon admin-stat-card__icon--green">✅</div></div><div class="admin-stat-card__number" id="statPublished">—</div></div>
+              <div class="admin-stat-card"><div class="admin-stat-card__header"><span class="admin-stat-card__label">Entwürfe</span><div class="admin-stat-card__icon admin-stat-card__icon--gold">📝</div></div><div class="admin-stat-card__number" id="statDraft">—</div></div>
+              <div class="admin-stat-card"><div class="admin-stat-card__header"><span class="admin-stat-card__label">Aufrufe (veröffentlicht)</span><div class="admin-stat-card__icon admin-stat-card__icon--blue">👁</div></div><div class="admin-stat-card__number" id="statViews">—</div></div>
+            </div>
+
+            <div class="admin-table-header" style="margin-bottom:var(--space-5);">
+              <div>
+                <h2 style="font-family:var(--font-heading);font-size:var(--text-xl);color:var(--color-primary);">Alle Artikel</h2>
+                <p style="font-size:var(--text-sm);color:var(--color-text-muted);" id="countLabel">Werden geladen…</p>
+              </div>
+              <div style="display:flex;gap:var(--space-2);flex-wrap:wrap;">
+                <div class="admin-search"><span class="admin-search__icon">🔍</span><input type="text" id="blogSearch" placeholder="Titel oder Kategorie …" aria-label="Suche" /></div>
+                <select class="status-select" id="blogStatusFilter">
+                  <option value="">Alle Status</option>
+                  <option value="published">Veröffentlicht</option>
+                  <option value="draft">Entwurf</option>
+                </select>
+              </div>
+            </div>
+            <div id="blogRows"></div>
+          </div>
+
+          <!-- ============ ÉDITEUR ============ -->
+          <div id="blogEditorView">
+            <div class="blog-form">
+              <div class="blog-field">
+                <label for="fTitle">Titel *</label>
+                <input type="text" id="fTitle" maxlength="200" placeholder="z. B. So verbessern Sie Ihren Schufa-Score" />
+              </div>
+
+              <div class="blog-grid-2">
+                <div class="blog-field">
+                  <label for="fCategory">Kategorie</label>
+                  <input type="text" id="fCategory" maxlength="60" list="catList" placeholder="z. B. Kreditwissen" />
+                  <datalist id="catList"></datalist>
+                </div>
+                <div class="blog-field">
+                  <label for="fAuthor">Autor/in (wird angezeigt)</label>
+                  <input type="text" id="fAuthor" maxlength="100" placeholder="Name" />
+                </div>
+              </div>
+
+              <div class="blog-field">
+                <label>Titelbild</label>
+                <div class="blog-cover">
+                  <img id="coverPreview" alt="" style="display:none;" />
+                  <div style="flex:1;min-width:240px;display:grid;gap:var(--space-2);">
+                    <div style="display:flex;gap:var(--space-2);flex-wrap:wrap;">
+                      <button type="button" class="btn btn-outline-primary btn-sm" id="coverBtn">🖼 Bild hochladen</button>
+                      <button type="button" class="btn btn-sm" id="coverRemoveBtn" style="display:none;color:var(--color-error);">Entfernen</button>
+                      <input type="file" id="coverFile" accept="image/jpeg,image/png,image/webp,image/gif" style="display:none;" />
+                    </div>
+                    <input type="text" id="fCoverAlt" maxlength="200" placeholder="Bildbeschreibung (Alt-Text) – für Barrierefreiheit & SEO" style="width:100%;padding:10px 12px;border:1px solid var(--color-border);border-radius:8px;font:inherit;" />
+                    <div class="blog-hint"><span>Empfohlen: Querformat 16:9, mindestens 1200 px breit.</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="blog-field">
+                <label for="fExcerpt">Kurzer Auszug (für die Übersicht)</label>
+                <textarea id="fExcerpt" maxlength="400" placeholder="Wenn leer, wird automatisch ein Auszug aus dem Text erstellt."></textarea>
+                <div class="blog-hint"><span></span><span id="excerptCount">0 / 400</span></div>
+              </div>
+
+              <div class="blog-field">
+                <label>Inhalt *</label>
+                <div id="editorMount"></div>
+              </div>
+
+              <details class="blog-seo">
+                <summary>🔎 Suchmaschinen (SEO) – optional</summary>
+                <div>
+                  <div class="blog-field">
+                    <label for="fSlug">Adresse (URL-Kürzel)</label>
+                    <input type="text" id="fSlug" maxlength="160" placeholder="wird automatisch aus dem Titel erstellt" />
+                    <div class="blog-hint"><span>Nach der Veröffentlichung nicht mehr ändern, sonst funktionieren bestehende Links nicht mehr.</span></div>
+                  </div>
+                  <div class="blog-field">
+                    <label for="fMetaTitle">SEO-Titel</label>
+                    <input type="text" id="fMetaTitle" maxlength="100" placeholder="Wenn leer, wird der Titel verwendet." />
+                    <div class="blog-hint"><span>Ideal: bis 60 Zeichen</span><span id="metaTitleCount">0 / 60</span></div>
+                  </div>
+                  <div class="blog-field">
+                    <label for="fMetaDesc">SEO-Beschreibung</label>
+                    <textarea id="fMetaDesc" maxlength="200" placeholder="Wenn leer, wird der Auszug verwendet."></textarea>
+                    <div class="blog-hint"><span>Ideal: 120–155 Zeichen</span><span id="metaDescCount">0 / 155</span></div>
+                  </div>
+                </div>
+              </details>
+            </div>
+
+            <div class="blog-savebar" style="margin-top:var(--space-6);">
+              <span class="grow" id="saveInfo">Neuer Entwurf</span>
+              <button type="button" class="btn btn-outline-primary btn-sm" id="cancelBtn">← Zur Liste</button>
+              <button type="button" class="btn btn-outline-primary btn-sm" id="previewBtn">👁 Vorschau</button>
+              <button type="button" class="btn btn-outline-primary btn-sm" id="saveBtn">💾 Speichern</button>
+              <button type="button" class="btn btn-primary btn-sm" id="publishBtn">🚀 Veröffentlichen</button>
+              <button type="button" class="btn btn-outline-primary btn-sm" id="unpublishBtn" style="display:none;">Zurück zum Entwurf</button>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Aperçu -->
+    <div class="admin-modal-overlay" id="previewOverlay">
+      <div class="admin-drawer" style="max-width:920px;width:100%;">
+        <div class="admin-drawer__header">
+          <h3 class="admin-drawer__title">Vorschau (so sehen Besucher den Artikel)</h3>
+          <button class="admin-drawer__close" id="previewClose">✕</button>
+        </div>
+        <div class="admin-drawer__body blog-preview" id="previewBody"></div>
+      </div>
+    </div>
+
+    <script src="../js/admin-common.js"></script>
+    <script src="../js/blog-editor.js"></script>
+    <script>(function () {
+      "use strict";
+      var A = window.BlitzAdmin;
+      var API = A.API_BASE;
+      var checkAuth = A.checkAuth, authHeaders = A.authHeaders, logout = A.logout, showToast = A.showToast;
+      window.logout = logout;
+
+      var $ = function (id) { return document.getElementById(id); };
+      var esc = function (s) { var d = document.createElement("div"); d.textContent = s == null ? "" : String(s); return d.innerHTML; };
+
+      var editor = null;
+      var current = null;      // article en cours d'édition (objet API) ou null = nouveau
+      var coverUrl = "";
+      var slugTouched = false;
+      var allArticles = [];
+      var searchTimer = null;
+
+      // ---------- API ----------
+      function api(path, method, body) {
+        var opts = { method: method || "GET", headers: authHeaders() };
+        if (body !== undefined) opts.body = JSON.stringify(body);
+        return fetch(API + path, opts).then(function (r) {
+          if (r.status === 401) { logout(); throw new Error("Sitzung abgelaufen"); }
+          return r.json().then(function (j) {
+            if (!r.ok || !j.success) {
+              var detail = j.errors ? " " + Object.keys(j.errors).map(function (k) { return j.errors[k]; }).join(" · ") : "";
+              var e = new Error((j.message || "Fehler") + detail); e.status = r.status; throw e;
+            }
+            return j;
+          });
+        });
+      }
+      function uploadImage(file) {
+        var fd = new FormData(); fd.append("file", file);
+        return fetch(API + "/admin/blog/image", { method: "POST", headers: { Authorization: "Bearer " + sessionStorage.getItem("blitz_admin_token") }, body: fd })
+          .then(function (r) {
+            if (r.status === 401) { logout(); throw new Error("Sitzung abgelaufen"); }
+            return r.json().then(function (j) { if (!r.ok || !j.success) throw new Error(j.message || "Upload fehlgeschlagen"); return j.data; });
+          });
+      }
+
+      // ---------- slug ----------
+      function slugify(t) {
+        var map = { "ä": "ae", "ö": "oe", "ü": "ue", "Ä": "ae", "Ö": "oe", "Ü": "ue", "ß": "ss", "&": " und ", "€": " euro " };
+        t = String(t).replace(/[äöüÄÖÜß&€]/g, function (c) { return map[c]; });
+        t = t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+        return t.slice(0, 120) || "";
+      }
+
+      // ---------- liste ----------
+      function fmtDate(s) { if (!s) return "—"; var d = new Date(String(s).replace(" ", "T")); return isNaN(d) ? "—" : d.toLocaleDateString("de-DE"); }
+
+      function loadStats() {
+        api("/admin/blog/stats").then(function (j) {
+          var d = j.data;
+          $("statTotal").textContent = d.total; $("statPublished").textContent = d.parStatut.published;
+          $("statDraft").textContent = d.parStatut.draft; $("statViews").textContent = d.vues;
+          var dl = $("catList"); dl.innerHTML = "";
+          (d.categories || []).forEach(function (c) { var o = document.createElement("option"); o.value = c; dl.appendChild(o); });
+        }).catch(function () {});
+      }
+      function loadList() {
+        var q = new URLSearchParams({ limit: "50" });
+        if ($("blogStatusFilter").value) q.set("statut", $("blogStatusFilter").value);
+        if ($("blogSearch").value) q.set("search", $("blogSearch").value);
+        api("/admin/blog?" + q.toString()).then(function (j) {
+          allArticles = j.data.articles || [];
+          renderList();
+        }).catch(function (e) {
+          $("blogRows").innerHTML = '<div class="admin-empty-state"><span class="admin-empty-state__icon">⚠️</span><div class="admin-empty-state__title">' + esc(e.message) + "</div></div>";
+        });
+      }
+      function renderList() {
+        $("countLabel").textContent = allArticles.length + " Artikel";
+        var box = $("blogRows");
+        if (!allArticles.length) {
+          box.innerHTML = '<div class="admin-empty-state"><span class="admin-empty-state__icon">✍️</span><div class="admin-empty-state__title">Noch keine Artikel – legen Sie Ihren ersten an!</div></div>';
+          return;
+        }
+        box.innerHTML = allArticles.map(function (a, i) {
+          var thumb = a.coverUrl ? '<img class="blog-row__thumb" src="' + esc(a.coverUrl.replace(/w_\d+/, "w_240")) + '" alt="" loading="lazy" />' : '<div class="blog-row__thumb"></div>';
+          var st = a.status === "published" ? '<span class="blog-status blog-status--published">✅ Veröffentlicht</span>' : '<span class="blog-status blog-status--draft">📝 Entwurf</span>';
+          return '<div class="blog-row" data-i="' + i + '">' + thumb +
+            '<div class="blog-row__main"><div class="blog-row__title">' + esc(a.title) + "</div>" +
+            '<div class="blog-row__sub">' + st + (a.category ? "<span>" + esc(a.category) + "</span>" : "") +
+            "<span>" + (a.status === "published" ? "Veröffentlicht: " + fmtDate(a.publishedAt) : "Geändert: " + fmtDate(a.updatedAt)) + "</span>" +
+            "<span>" + a.views + " Aufrufe</span></div></div>" +
+            '<div class="blog-row__actions">' +
+            (a.status === "published" ? '<a class="btn btn-outline-primary btn-sm" href="../../blog-artikel.html?slug=' + encodeURIComponent(a.slug) + '" target="_blank" rel="noopener" data-stop="1">🌐 Ansehen</a>' : "") +
+            '<button class="btn btn-sm" data-del="' + i + '" style="color:var(--color-error);">🗑</button></div></div>';
+        }).join("");
+        Array.prototype.forEach.call(box.querySelectorAll(".blog-row"), function (row) {
+          row.addEventListener("click", function (e) {
+            if (e.target.closest("[data-del]") || e.target.closest("[data-stop]")) return;
+            openEditor(allArticles[parseInt(row.getAttribute("data-i"), 10)].id);
+          });
+        });
+        Array.prototype.forEach.call(box.querySelectorAll("[data-del]"), function (b) {
+          b.addEventListener("click", function () {
+            var a = allArticles[parseInt(b.getAttribute("data-del"), 10)];
+            if (!window.confirm("„" + a.title + "“ wirklich endgültig löschen?")) return;
+            api("/admin/blog/" + a.id, "DELETE").then(function () { showToast("Artikel gelöscht."); loadList(); loadStats(); }).catch(function (e) { showToast("Fehler: " + e.message); });
+          });
+        });
+      }
+
+      // ---------- éditeur ----------
+      function counter(inputId, countId, max) {
+        var inp = $(inputId), c = $(countId);
+        function upd() { var n = inp.value.length; c.textContent = n + " / " + max; c.className = n > max ? "over" : ""; }
+        inp.addEventListener("input", upd); upd();
+        return upd;
+      }
+      var updExcerpt, updMT, updMD;
+
+      function showView(editing) {
+        $("blogListView").style.display = editing ? "none" : "block";
+        $("blogEditorView").style.display = editing ? "block" : "none";
+        $("newPostBtn").style.display = editing ? "none" : "";
+        $("topTitle").textContent = editing ? (current ? "Artikel bearbeiten" : "Neuer Artikel") : "Blog";
+        window.scrollTo(0, 0);
+      }
+      function setCover(url) {
+        coverUrl = url || "";
+        var img = $("coverPreview");
+        if (coverUrl) { img.src = coverUrl.replace(/w_\d+/, "w_480"); img.style.display = ""; } else { img.removeAttribute("src"); img.style.display = "none"; }
+        $("coverRemoveBtn").style.display = coverUrl ? "" : "none";
+        $("coverBtn").textContent = coverUrl ? "🖼 Bild ersetzen" : "🖼 Bild hochladen";
+      }
+      function fill(a) {
+        current = a || null;
+        $("fTitle").value = a ? a.title : "";
+        $("fCategory").value = a ? a.category : "";
+        $("fAuthor").value = a ? a.authorName : (JSON.parse(sessionStorage.getItem("blitz_admin_user") || "{}").name || "");
+        $("fExcerpt").value = a ? a.excerpt : "";
+        $("fMetaTitle").value = a ? a.metaTitle : "";
+        $("fMetaDesc").value = a ? a.metaDescription : "";
+        $("fSlug").value = a ? a.slug : "";
+        $("fCoverAlt").value = a ? a.coverAlt : "";
+        slugTouched = !!a;
+        setCover(a ? a.coverUrl : "");
+        editor.setHtml(a ? a.content : "");
+        updExcerpt(); updMT(); updMD();
+        var pub = a && a.status === "published";
+        $("publishBtn").style.display = pub ? "none" : "";
+        $("unpublishBtn").style.display = pub ? "" : "none";
+        $("saveInfo").textContent = !a ? "Neuer Entwurf" : pub ? "Veröffentlicht am " + fmtDate(a.publishedAt) : "Entwurf – noch nicht öffentlich";
+      }
+      function openEditor(id) {
+        if (!id) { fill(null); showView(true); return; }
+        api("/admin/blog/" + id).then(function (j) { fill(j.data.article); showView(true); }).catch(function (e) { showToast("Fehler: " + e.message); });
+      }
+      function payload() {
+        return {
+          title: $("fTitle").value.trim(), slug: $("fSlug").value.trim() || slugify($("fTitle").value), category: $("fCategory").value.trim(),
+          authorName: $("fAuthor").value.trim(), excerpt: $("fExcerpt").value.trim(), coverUrl: coverUrl, coverAlt: $("fCoverAlt").value.trim(),
+          metaTitle: $("fMetaTitle").value.trim(), metaDescription: $("fMetaDesc").value.trim(), content: editor.getHtml()
+        };
+      }
+      function save(thenPublish) {
+        var p = payload();
+        if (p.title.length < 3) { showToast("Bitte einen Titel eingeben."); $("fTitle").focus(); return Promise.reject(new Error("Titel")); }
+        var req = current ? api("/admin/blog/" + current.id, "PUT", p) : api("/admin/blog", "POST", p);
+        return req.then(function (j) {
+          current = j.data.article; editor.markClean();
+          $("fSlug").value = current.slug;
+          if (!thenPublish) { showToast("Gespeichert."); $("saveInfo").textContent = "Gespeichert um " + new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }); }
+          loadStats();
+          return current;
+        }).catch(function (e) { showToast("Fehler: " + e.message); throw e; });
+      }
+      function setStatus(statut) {
+        return save(true).then(function (a) { return api("/admin/blog/" + a.id + "/statut", "PUT", { statut: statut }); })
+          .then(function (j) { fill(j.data.article); showToast(j.message); loadList(); loadStats(); })
+          .catch(function (e) { if (e.message !== "Titel") showToast("Fehler: " + e.message); });
+      }
+      function preview() {
+        var p = payload();
+        var body = $("previewBody");
+        body.innerHTML = "";
+        var wrap = document.createElement("div");
+        wrap.innerHTML = '<header class="blog-article__head"><h1 class="blog-article__title"></h1><div class="blog-article__meta"></div></header><figure class="blog-article__cover" style="padding:0;"><img alt="" /></figure><div class="blog-article__body"><div class="blog-content"></div></div>';
+        wrap.querySelector("h1").textContent = p.title || "(ohne Titel)";
+        wrap.querySelector(".blog-article__meta").textContent = [p.category, p.authorName].filter(Boolean).join(" · ");
+        var fig = wrap.querySelector("figure");
+        if (p.coverUrl) { fig.querySelector("img").src = p.coverUrl; } else { fig.remove(); }
+        wrap.querySelector(".blog-content").innerHTML = p.content; // HTML produit par l'éditeur (nettoyé) — aperçu local uniquement
+        body.appendChild(wrap);
+        $("previewOverlay").classList.add("open");
+      }
+
+      function bind() {
+        $("newPostBtn").addEventListener("click", function () { openEditor(null); });
+        $("cancelBtn").addEventListener("click", function () {
+          if (editor.isDirty() && !window.confirm("Nicht gespeicherte Änderungen gehen verloren. Trotzdem zur Liste?")) return;
+          showView(false); loadList();
+        });
+        $("saveBtn").addEventListener("click", function () { save(false).catch(function () {}); });
+        $("publishBtn").addEventListener("click", function () {
+          var issues = editor.getIssues();
+          if (issues.length && !window.confirm(issues.join("\n") + "\n\nTrotzdem veröffentlichen?")) return;
+          setStatus("published");
+        });
+        $("unpublishBtn").addEventListener("click", function () {
+          if (window.confirm("Der Artikel ist danach nicht mehr öffentlich sichtbar. Fortfahren?")) setStatus("draft");
+        });
+        $("previewBtn").addEventListener("click", preview);
+        $("previewClose").addEventListener("click", function () { $("previewOverlay").classList.remove("open"); });
+        $("previewOverlay").addEventListener("click", function (e) { if (e.target === this) this.classList.remove("open"); });
+
+        $("fTitle").addEventListener("input", function () {
+          if (!slugTouched && (!current || current.status !== "published")) $("fSlug").value = slugify($("fTitle").value);
+        });
+        $("fSlug").addEventListener("input", function () { slugTouched = true; });
+
+        $("coverBtn").addEventListener("click", function () { $("coverFile").click(); });
+        $("coverRemoveBtn").addEventListener("click", function () { setCover(""); });
+        $("coverFile").addEventListener("change", function () {
+          var f = this.files[0]; this.value = "";
+          if (!f) return;
+          $("coverBtn").textContent = "⏳ Wird hochgeladen …";
+          uploadImage(f).then(function (d) { setCover(d.url); }).catch(function (e) { showToast("Fehler: " + e.message); setCover(coverUrl); });
+        });
+
+        $("blogSearch").addEventListener("input", function () { clearTimeout(searchTimer); searchTimer = setTimeout(loadList, 300); });
+        $("blogStatusFilter").addEventListener("change", loadList);
+        var lo = $("logoutBtn"); if (lo) lo.addEventListener("click", function (e) { e.preventDefault(); logout(); });
+        window.addEventListener("beforeunload", function (e) {
+          if (editor && $("blogEditorView").style.display === "block" && editor.isDirty()) { e.preventDefault(); e.returnValue = ""; }
+        });
+      }
+
+      function init() {
+        if (!checkAuth()) return;
+        A.loadUserInfo(); A.initSidebar();
+        editor = BlitzBlogEditor.create({
+          mount: $("editorMount"), uploadImage: uploadImage,
+          notify: function (m, t) { showToast((t === "error" ? "Fehler: " : "") + m); }
+        });
+        updExcerpt = counter("fExcerpt", "excerptCount", 400);
+        updMT = counter("fMetaTitle", "metaTitleCount", 60);
+        updMD = counter("fMetaDesc", "metaDescCount", 155);
+        bind(); loadStats(); loadList();
+        if (location.hash === "#neu") openEditor(null);
+      }
+      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
+    })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="api-base" content="https://api.blitzleihen.com">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Dashboard – Finanzberatung Koitzsch u. Schuchardt Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../css/global.css">
+  <link rel="stylesheet" href="../../css/components.css">
+  <link rel="stylesheet" href="../../css/admin.css">
+  <link rel="stylesheet" href="../../css/editorial.css">
+  <link rel="stylesheet" href="../css/admin-editorial.css">
+  <link rel="icon" type="image/webp" href="../../logo-ks.webp">
+</head>
+<body class="admin-body">
+
+
+  <div class="admin-layout">
+
+
+    <aside class="admin-sidebar" id="adminSidebar" role="navigation" aria-label="Administration">
+
+
+      <div class="admin-sidebar__header">
+        <img src="../../logo-ks.webp" alt="Finanzberatung Koitzsch u. Schuchardt" class="admin-sidebar__logo">
+      </div>
+
+
+      <nav class="admin-nav">
+        <span class="admin-nav__section-title">Hauptmenü</span>
+        <a href="dashboard.html" class="admin-nav__link active">
+          <span class="admin-nav__icon">📊</span> Dashboard
+        </a>
+        <a href="dashboard.html#demandes" class="admin-nav__link">
+          <span class="admin-nav__icon">📋</span> Alle Anträge
+        </a>
+        <a href="dashboard.html#neu" class="admin-nav__link">
+          <span class="admin-nav__icon">🆕</span> Neue Anträge
+          <span id="newCount" style="margin-left:auto; background:var(--color-accent); color:white; border-radius:var(--radius-full); padding:2px 8px; font-size:0.65rem; font-weight:700;">0</span>
+        </a>
+        <a href="chat.html" class="admin-nav__link">
+          <span class="admin-nav__icon">💬</span> Live-Chat
+          <span id="chatUnreadCount" style="margin-left:auto; background:var(--color-accent); color:white; border-radius:var(--radius-full); padding:2px 8px; font-size:0.65rem; font-weight:700;">0</span>
+        </a>
+
+        <span class="admin-nav__section-title">Verwaltung</span>
+        <a href="kunden.html" class="admin-nav__link">
+          <span class="admin-nav__icon">👥</span> Kunden
+        </a>
+        <a href="kontakt.html" class="admin-nav__link">
+          <span class="admin-nav__icon">✉️</span> Kontakt
+          <span
+            id="kontaktCount"
+            style="
+              margin-left: auto;
+              background: var(--color-accent);
+              color: white;
+              border-radius: var(--radius-full);
+              padding: 2px 8px;
+              font-size: 0.65rem;
+              font-weight: 700;
+            "
+            >0</span
+          >
+        </a>
+        <a href="avis.html" class="admin-nav__link">
+          <span class="admin-nav__icon">⭐</span> Bewertungen
+          <span id="avisPendingCount" style="margin-left:auto;background:var(--color-accent);color:white;border-radius:var(--radius-full);padding:2px 8px;font-size:0.65rem;font-weight:700;">0</span>
+        </a>
+          <a href="blog.html" class="admin-nav__link"><span class="admin-nav__icon">✍️</span> Blog</a>
+        <a href="#" class="admin-nav__link" id="navEmailsSoon">
+          <span class="admin-nav__icon">📧</span> E-Mails
+        </a>
+        <a href="einstellungen.html" class="admin-nav__link">
+          <span class="admin-nav__icon">⚙️</span> Einstellungen
+        </a>
+
+        <span class="admin-nav__section-title">System</span>
+        <a href="../index.html" class="admin-nav__link" target="_blank">
+          <span class="admin-nav__icon">🌐</span> Website anzeigen
+        </a>
+        <a href="#" class="admin-nav__link" id="logoutBtn">
+          <span class="admin-nav__icon">🚪</span> Abmelden
+        </a>
+      </nav>
+
+
+      <div class="admin-sidebar__footer">
+        <div class="admin-user">
+          <div class="admin-user__avatar" id="userAvatar">A</div>
+          <div>
+            <div class="admin-user__name" id="userName">Administrator</div>
+            <div class="admin-user__role">Super Admin</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+
+    <div class="admin-sidebar-backdrop" id="sidebarBackdrop"></div>
+
+
+    <div class="admin-content">
+
+
+      <header class="admin-topbar">
+
+        <button id="sidebarToggle" style="display:none; background:none; border:none; cursor:pointer; font-size:1.3rem; color:var(--color-primary); margin-right:var(--space-4);" aria-label="Menü öffnen">☰</button>
+
+        <h1 class="admin-topbar__title" id="topbarTitle">Dashboard</h1>
+
+        <div class="admin-topbar__actions">
+
+          <div class="admin-search">
+            <span class="admin-search__icon">🔍</span>
+            <input type="text" id="globalSearch" placeholder="Antrag suchen…" aria-label="Suche">
+          </div>
+
+
+          <button onclick="loadDemandes()" class="btn btn-outline-primary btn-sm" title="Aktualisieren">↻ Aktualisieren</button>
+
+
+          <div class="admin-user__avatar" id="topbarAvatar" style="cursor:pointer;" title="Abmelden" onclick="logout()">A</div>
+        </div>
+      </header>
+
+
+      <main class="admin-main" id="adminMain">
+
+
+        <div class="admin-stats-grid" id="statsGrid">
+          <div class="admin-stat-card">
+            <div class="admin-stat-card__header">
+              <span class="admin-stat-card__label">Gesamte Anträge</span>
+              <div class="admin-stat-card__icon admin-stat-card__icon--blue">📋</div>
+            </div>
+            <div class="admin-stat-card__number" id="statTotal">—</div>
+            <div class="admin-stat-card__change up" id="statTotalChange">Werden geladen…</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-card__header">
+              <span class="admin-stat-card__label">Neue Anträge</span>
+              <div class="admin-stat-card__icon admin-stat-card__icon--gold">🆕</div>
+            </div>
+            <div class="admin-stat-card__number" id="statNew">—</div>
+            <div class="admin-stat-card__change">Noch nicht bearbeitet</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-card__header">
+              <span class="admin-stat-card__label">Akzeptierte Anträge</span>
+              <div class="admin-stat-card__icon admin-stat-card__icon--green">✅</div>
+            </div>
+            <div class="admin-stat-card__number" id="statAccepted">—</div>
+            <div class="admin-stat-card__change up" id="statAcceptedRate">Werden geladen…</div>
+          </div>
+          <div class="admin-stat-card">
+            <div class="admin-stat-card__header">
+              <span class="admin-stat-card__label">Abgelehnte Anträge</span>
+              <div class="admin-stat-card__icon admin-stat-card__icon--red">❌</div>
+            </div>
+            <div class="admin-stat-card__number" id="statRefused">—</div>
+            <div class="admin-stat-card__change down" id="statRefusedRate">Werden geladen…</div>
+          </div>
+        </div>
+
+
+        <div class="admin-table-wrap" id="demandes">
+
+
+          <div class="admin-table-header">
+            <h2 class="admin-table-title">Kreditanträge</h2>
+            <div style="display:flex; gap:var(--space-3); align-items:center; flex-wrap:wrap;">
+
+              <select id="filterStatus" style="padding:var(--space-2) var(--space-3); border:1.5px solid var(--color-border); border-radius:var(--radius-md); font-size:var(--text-sm); font-family:var(--font-body); outline:none; cursor:pointer; appearance:none; padding-right:2rem; background-image:url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%278%27 viewBox=%270 0 12 8%27%3E%3Cpath d=%27M1 1l5 5 5-5%27 stroke=%27%234A5478%27 stroke-width=%271.5%27 fill=%27none%27 stroke-linecap=%27round%27/%3E%3C/svg%3E'); background-repeat:no-repeat; background-position:right 0.5rem center;" aria-label="Status filtern">
+                <option value="">Alle Status</option>
+                <option value="Neu">Neu</option>
+                <option value="Analyse">In Analyse</option>
+                <option value="Akzeptiert">Akzeptiert</option>
+                <option value="Abgelehnt">Abgelehnt</option>
+              </select>
+
+              <select id="filterType" style="padding:var(--space-2) var(--space-3); border:1.5px solid var(--color-border); border-radius:var(--radius-md); font-size:var(--text-sm); font-family:var(--font-body); outline:none; cursor:pointer; appearance:none; padding-right:2rem; background-image:url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%278%27 viewBox=%270 0 12 8%27%3E%3Cpath d=%27M1 1l5 5 5-5%27 stroke=%27%234A5478%27 stroke-width=%271.5%27 fill=%27none%27 stroke-linecap=%27round%27/%3E%3C/svg%3E'); background-repeat:no-repeat; background-position:right 0.5rem center;" aria-label="Kreditart filtern">
+                <option value="">Alle Kreditarten</option>
+                <option value="Privatkredit">Privatkredit</option>
+                <option value="Immobilienkredit">Immobilienkredit</option>
+                <option value="Autofinanzierung">Autofinanzierung</option>
+                <option value="Renovierungskredit">Renovierungskredit</option>
+                <option value="Hypothekenkredit">Hypothekenkredit</option>
+                <option value="Umschuldung">Umschuldung</option>
+              </select>
+            </div>
+          </div>
+
+
+          <div style="overflow-x:auto;">
+            <table class="admin-table" aria-label="Liste der Kreditanträge">
+              <thead>
+                <tr>
+                  <th>Ref.-Nr.</th>
+                  <th>Antragsteller</th>
+                  <th>Kreditart</th>
+                  <th>Betrag</th>
+                  <th>Datum</th>
+                  <th>Status</th>
+                  <th>Aktion</th>
+                </tr>
+              </thead>
+              <tbody id="demandesTableBody">
+
+                <tr>
+                  <td colspan="7" style="text-align:center; padding:var(--space-12); color:var(--color-text-muted);">
+                    <span style="font-size:2rem; display:block; margin-bottom:var(--space-3);">⏳</span>
+                    Anträge werden geladen…
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+
+          <div class="admin-cards-list" id="demandesCardsList"></div>
+
+
+          <div class="admin-pagination">
+            <span class="admin-pagination__info" id="paginationInfo">—</span>
+            <div class="admin-pagination__controls" id="paginationControls"></div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+
+  <div class="admin-modal-overlay" id="drawerOverlay">
+    <div class="admin-drawer" id="drawerPanel" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
+
+      <div class="admin-drawer__header">
+        <h2 class="admin-drawer__title" id="drawerTitle">Antragsdetails</h2>
+        <button class="admin-drawer__close" id="drawerClose" aria-label="Schließen">×</button>
+      </div>
+
+      <div class="admin-drawer__body" id="drawerBody">
+
+      </div>
+
+      <div class="admin-drawer__footer">
+        <div style="flex:1;">
+          <label style="font-size:var(--text-xs); color:var(--color-text-muted); display:block; margin-bottom:var(--space-2);">Status ändern:</label>
+          <select class="status-select" id="drawerStatusSelect">
+            <option value="Neu">🆕 Neu</option>
+            <option value="Analyse">🔍 In Analyse</option>
+            <option value="Akzeptiert">✅ Akzeptiert</option>
+            <option value="Abgelehnt">❌ Abgelehnt</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" id="saveStatusBtn">Status speichern</button>
+        <button class="btn btn-outline-primary" id="drawerCloseBtn">Schließen</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="../js/admin-common.js"></script>
+  <script>(function() {
+  "use strict";
+  var API_BASE = window.BlitzAdmin.API_BASE;
+  var checkAuth = window.BlitzAdmin.checkAuth;
+  var authHeaders = window.BlitzAdmin.authHeaders;
+  var logout = window.BlitzAdmin.logout;
+  var loadUserInfo = window.BlitzAdmin.loadUserInfo;
+  window.logout = logout;
+  var currentPageDemandes = [];
+  var pagination = { total: 0, page: 1, pages: 1 };
+  var currentId = null;
+  var searchDebounceTimer = null;
+  var replyAttach = window.BlitzAdmin.createAttachmentPicker("reply");
+  var offreAttach = window.BlitzAdmin.createAttachmentPicker("offre");
+  var ribAttach = window.BlitzAdmin.createAttachmentPicker("rib");
+  var quittanceAttach = window.BlitzAdmin.createAttachmentPicker("quittance");
+  function buildQueryParams(page) {
+    var search = (document.getElementById("globalSearch") || {}).value || "";
+    var statutF = (document.getElementById("filterStatus") || {}).value || "";
+    var typeF = (document.getElementById("filterType") || {}).value || "";
+    var params = new URLSearchParams();
+    params.set("page", page || 1);
+    params.set("limit", 50);
+    if (search) params.set("search", search);
+    if (statutF) params.set("statut", statutF);
+    if (typeF) params.set("kreditart", typeF);
+    return params.toString();
+  }
+  window.loadDemandes = function(page) {
+    var token = checkAuth();
+    if (!token) return;
+    fetch(API_BASE + "/demandes?" + buildQueryParams(page || 1), { headers: authHeaders() }).then(function(r) {
+      if (r.status === 401) {
+        logout();
+        return null;
+      }
+      if (!r.ok) throw new Error("API error " + r.status);
+      return r.json();
+    }).then(function(json) {
+      if (!json) return;
+      var data = json.data || {};
+      currentPageDemandes = data.demandes || [];
+      pagination = data.pagination || { total: currentPageDemandes.length, page: 1, pages: 1 };
+      renderTable();
+    }).catch(function(err) {
+      console.error("Fehler beim Laden der Antr\xE4ge:", err);
+      loadDemoData();
+    });
+  };
+  function loadStats() {
+    var token = checkAuth();
+    if (!token) return;
+    fetch(API_BASE + "/admin/stats", { headers: authHeaders() }).then(function(r) {
+      if (r.status === 401) {
+        logout();
+        return null;
+      }
+      return r.json();
+    }).then(function(json) {
+      if (!json || !json.success) return;
+      var d = json.data;
+      var statuts = d.parStatut || {};
+      setText("statTotal", d.total);
+      setText("statNew", statuts.Neu || 0);
+      setText("statAccepted", statuts.Akzeptiert || 0);
+      setText("statRefused", statuts.Abgelehnt || 0);
+      setText("statTotalChange", d.total + " Antr\xE4ge insgesamt");
+      setText("statAcceptedRate", (d.tauxAcceptation || 0) + "% Akzeptierungsrate");
+      setText("statRefusedRate", d.total ? Math.round((statuts.Abgelehnt || 0) / d.total * 100) + "% Ablehnungsrate" : "0% Ablehnungsrate");
+      var newCountEl = document.getElementById("newCount");
+      if (newCountEl) newCountEl.textContent = statuts.Neu || 0;
+    }).catch(function() {
+    });
+  }
+  function loadDemoData() {
+    currentPageDemandes = [
+      { _id: "1", referenceNumber: "BL-2025-001234", vorname: "Max", nachname: "M\xFCller", kreditart: "Privatkredit", kreditbetrag: 2e4, statut: "Neu", createdAt: "2025-01-15T10:30:00Z", land: "Deutschland", einkommen: 3500 },
+      { _id: "2", referenceNumber: "BL-2025-001235", vorname: "Sandra", nachname: "Becker", kreditart: "Immobilienkredit", kreditbetrag: 25e4, statut: "Analyse", createdAt: "2025-01-14T14:22:00Z", land: "Deutschland", einkommen: 5e3 },
+      { _id: "3", referenceNumber: "BL-2025-001236", vorname: "Thomas", nachname: "Richter", kreditart: "Autofinanzierung", kreditbetrag: 35e3, statut: "Akzeptiert", createdAt: "2025-01-13T09:15:00Z", land: "\xD6sterreich", einkommen: 4200 },
+      { _id: "4", referenceNumber: "BL-2025-001237", vorname: "Laura", nachname: "Schulz", kreditart: "Renovierungskredit", kreditbetrag: 15e3, statut: "Abgelehnt", createdAt: "2025-01-12T16:45:00Z", land: "Deutschland", einkommen: 2800 },
+      { _id: "5", referenceNumber: "BL-2025-001238", vorname: "Klaus", nachname: "Weber", kreditart: "Umschuldung", kreditbetrag: 45e3, statut: "Neu", createdAt: "2025-01-11T11:00:00Z", land: "Frankreich", einkommen: 4800 },
+      { _id: "6", referenceNumber: "BL-2025-001239", vorname: "Maria", nachname: "Hofmann", kreditart: "Hypothekenkredit", kreditbetrag: 18e4, statut: "Analyse", createdAt: "2025-01-10T13:30:00Z", land: "Deutschland", einkommen: 6e3 }
+    ];
+    pagination = { total: currentPageDemandes.length, page: 1, pages: 1 };
+    renderTable();
+    setText("statTotal", 6);
+    setText("statNew", 2);
+    setText("statAccepted", 1);
+    setText("statRefused", 1);
+    setText("statTotalChange", "6 Antr\xE4ge insgesamt (Demo)");
+    setText("statAcceptedRate", "17% Akzeptierungsrate");
+    setText("statRefusedRate", "17% Ablehnungsrate");
+  }
+  function renderTable() {
+    var tbody = document.getElementById("demandesTableBody");
+    var cardsList = document.getElementById("demandesCardsList");
+    var info = document.getElementById("paginationInfo");
+    if (!tbody) return;
+    if (info) info.textContent = pagination.total + " Eintr\xE4ge gefunden";
+    if (!currentPageDemandes.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:var(--space-10);color:var(--color-text-muted);">Keine Antr\xE4ge gefunden.</td></tr>';
+      if (cardsList) cardsList.innerHTML = '<div class="admin-empty-state"><span class="admin-empty-state__icon">\u{1F4ED}</span><div class="admin-empty-state__title">Keine Antr\xE4ge gefunden</div></div>';
+      renderPagination();
+      return;
+    }
+    tbody.innerHTML = currentPageDemandes.map(function(d) {
+      var date = d.createdAt ? new Date(d.createdAt).toLocaleDateString("de-DE") : "\u2014";
+      var amount = d.kreditbetrag ? Number(d.kreditbetrag).toLocaleString("de-DE") + " \u20AC" : "\u2014";
+      var badge = statusBadge(d.statut);
+      return [
+        `<tr onclick="openDrawer('` + d._id + `')" style="cursor:pointer;">`,
+        '  <td><code style="font-size:0.7rem; color:var(--color-text-muted);">' + (d.referenceNumber || d._id) + "</code></td>",
+        "  <td><strong>" + (d.vorname || "") + " " + (d.nachname || "") + "</strong></td>",
+        "  <td>" + (d.kreditart || "\u2014") + "</td>",
+        '  <td style="font-weight:600; color:var(--color-primary); font-family:var(--font-mono);">' + amount + "</td>",
+        "  <td>" + date + "</td>",
+        "  <td>" + badge + "</td>",
+        `  <td><button onclick="event.stopPropagation(); openDrawer('` + d._id + `')" class="btn btn-sm btn-outline-primary">Details</button></td>`,
+        "</tr>"
+      ].join("");
+    }).join("");
+    if (cardsList) {
+      cardsList.innerHTML = currentPageDemandes.map(function(d) {
+        var date = d.createdAt ? new Date(d.createdAt).toLocaleDateString("de-DE") : "\u2014";
+        var amount = d.kreditbetrag ? Number(d.kreditbetrag).toLocaleString("de-DE") + " \u20AC" : "\u2014";
+        return [
+          `<div class="admin-card-row" onclick="openDrawer('` + d._id + `')">`,
+          '  <div class="admin-card-row__top">',
+          '    <span class="admin-card-row__name">' + (d.vorname || "") + " " + (d.nachname || "") + "</span>",
+          "    " + statusBadge(d.statut),
+          "  </div>",
+          '  <div class="admin-card-row__meta">',
+          '    <span class="admin-card-row__ref">' + (d.referenceNumber || d._id) + "</span>",
+          "    <span>" + date + "</span>",
+          "  </div>",
+          '  <div class="admin-card-row__meta">',
+          "    <span>" + (d.kreditart || "\u2014") + "</span>",
+          '    <span class="admin-card-row__amount">' + amount + "</span>",
+          "  </div>",
+          "</div>"
+        ].join("");
+      }).join("");
+    }
+    renderPagination();
+  }
+  function statusBadge(statut) {
+    var map = {
+      "Neu": "status-badge--nouveau",
+      "Analyse": "status-badge--analyse",
+      "Akzeptiert": "status-badge--accepte",
+      "Abgelehnt": "status-badge--refuse"
+    };
+    var cls = map[statut] || "status-badge--nouveau";
+    return '<span class="status-badge ' + cls + '">' + (statut || "Neu") + "</span>";
+  }
+  function renderPagination() {
+    var controls = document.getElementById("paginationControls");
+    if (!controls) return;
+    var pages = pagination.pages || 1;
+    var currentPage = pagination.page || 1;
+    var html = "";
+    for (var i = 1; i <= pages; i++) {
+      html += '<button class="admin-page-btn' + (i === currentPage ? " active" : "") + '" data-page="' + i + '">' + i + "</button>";
+    }
+    controls.innerHTML = html;
+    controls.querySelectorAll(".admin-page-btn").forEach(function(btn) {
+      btn.addEventListener("click", function() {
+        loadDemandes(parseInt(this.getAttribute("data-page")));
+      });
+    });
+  }
+  window.openDrawer = function(id) {
+    var demande = currentPageDemandes.find(function(d) {
+      return d._id === id;
+    });
+    if (!demande) {
+      // Antrag pas présent dans la page actuellement affichée (ex. lien
+      // "Zum Antrag" depuis l'onglet Kontakt) — on le récupère directement
+      // par API plutôt que d'abandonner silencieusement.
+      fetch(API_BASE + "/demandes/" + id, { headers: authHeaders() }).then(function(r) {
+        return r.ok ? r.json() : null;
+      }).then(function(json) {
+        if (!json || !json.data || !json.data.demande) return;
+        openDrawerWithDemande(json.data.demande, json.data.messages || []);
+      }).catch(function(err) {
+        console.error("Fehler beim Laden des Antrags:", err);
+      });
+      return;
+    }
+    openDrawerWithDemande(demande, null);
+    fetch(API_BASE + "/demandes/" + id, { headers: authHeaders() }).then(function(r) {
+      return r.ok ? r.json() : null;
+    }).then(function(json) {
+      if (!json || currentId !== id) return;
+      var data = json.data || {};
+      var body = document.getElementById("drawerBody");
+      if (body) body.innerHTML = buildDrawerBody(demande, data.messages || []);
+      bindReplyButton();
+      bindOffreButtons();
+    bindContratButton();
+    bindDecisionBanqueButtons();
+    bindRibButton();
+    bindQuittanceButton();
+    }).catch(function(err) {
+      console.error("Fehler beim Laden des Verlaufs:", err);
+    });
+  };
+  function openDrawerWithDemande(demande, messages) {
+    currentId = demande._id;
+    replyAttach.clear();
+    offreAttach.clear();
+    ribAttach.clear();
+    quittanceAttach.clear();
+    var overlay = document.getElementById("drawerOverlay");
+    var body = document.getElementById("drawerBody");
+    var statusSel = document.getElementById("drawerStatusSelect");
+    if (overlay) overlay.classList.add("open");
+    if (statusSel) statusSel.value = demande.statut || "Neu";
+    if (body) body.innerHTML = buildDrawerBody(demande, messages);
+    bindReplyButton();
+    bindOffreButtons();
+    bindContratButton();
+    bindDecisionBanqueButtons();
+    bindRibButton();
+    bindQuittanceButton();
+  }
+  var TAUX_FOURCHETTES = {
+    "Privatkredit": [2.9, 9.9],
+    "Immobilienkredit": [1.8, 4.5],
+    "Autofinanzierung": [3.2, 8.9],
+    "Renovierungskredit": [3.5, 9.5],
+    "Hypothekenkredit": [2.1, 4.9],
+    "Umschuldung": [2.7, 8.9]
+  };
+  function buildOffreDecisionStatus(demande) {
+    // Suivi en lecture seule de la réponse du client aux 3 boutons de
+    // l'email d'offre (accepter / je réfléchis / refuser) — même donnée
+    // que celle affichée dans l'application PWA, pour la parité entre les
+    // deux interfaces d'administration.
+    if (!demande.offreEnvoyeeLe) return "";
+    var date = demande.decisionClientLe ? new Date(demande.decisionClientLe).toLocaleString("de-DE") : "";
+    if (demande.decisionClient === "accepte") {
+      return '<p style="font-size:var(--text-xs); color:#16a34a; margin-bottom:var(--space-3);">✅ Angebot vom Kunden angenommen am ' + date + ".</p>";
+    }
+    if (demande.decisionClient === "refuse") {
+      return '<p style="font-size:var(--text-xs); color:#DC2626; margin-bottom:var(--space-3);">❌ Angebot vom Kunden abgelehnt am ' + date + ".</p>";
+    }
+    if (demande.decisionClient === "reflexion") {
+      return '<p style="font-size:var(--text-xs); color:#F5B301; margin-bottom:var(--space-3);">🤔 Kunde überlegt es sich noch (seit ' + date + ").</p>";
+    }
+    return '<p style="font-size:var(--text-xs); color:var(--color-text-muted); margin-bottom:var(--space-3);">⏳ Noch keine Rückmeldung vom Kunden zum Zinssatz.</p>';
+  }
+  function buildOffreBlock(demande) {
+    if (demande.statut !== "Akzeptiert") return "";
+    var fourchette = TAUX_FOURCHETTES[demande.kreditart] || [0, 15];
+    var options = '<option value="">Bitte wählen…</option>';
+    for (var v = fourchette[0]; v <= fourchette[1] + 0.001; v = Math.round((v + 0.1) * 10) / 10) {
+      var val = Math.round(v * 10) / 10;
+      options += '<option value="' + val + '">' + val.toFixed(1).replace(".", ",") + ' %</option>';
+    }
+    var dejaEnvoyee = demande.offreEnvoyeeLe
+      ? '<p style="font-size:var(--text-xs); color:var(--color-text-muted); margin-bottom:var(--space-3);">Bereits gesendet am ' + new Date(demande.offreEnvoyeeLe).toLocaleString("de-DE") + " zu " + demande.tauxOffert + " % (Ref. " + demande.offreReference + ").</p>"
+      : "";
+    return [
+      '<div class="detail-section">',
+      '<div class="detail-section__title">💰 Kreditangebot erstellen</div>',
+      dejaEnvoyee,
+      buildOffreDecisionStatus(demande),
+      '<label style="font-size:var(--text-xs); color:var(--color-text-muted); display:block; margin-bottom:var(--space-2);">Zinssatz p.a. (' + fourchette[0] + '% – ' + fourchette[1] + '% für ' + demande.kreditart + ')</label>',
+      '<select id="offreTauxInput" class="status-select" style="margin-bottom:var(--space-3); width:100%; box-sizing:border-box;">' + options + '</select>',
+      '<button class="btn btn-outline-primary" id="offreApercuBtn" type="button">Tilgungsplan berechnen</button>',
+      '<div id="offreApercuResult"></div>',
+      '<textarea id="offreMessageInput" class="reply-textarea" placeholder="Persönliche Nachricht (optional)…" rows="3" style="margin-top:var(--space-3);"></textarea>',
+      offreAttach.html(),
+      '<button class="btn btn-primary" id="offreEnvoyerBtn" type="button" style="margin-top:var(--space-3);" disabled>✅ Angebot senden</button>',
+      "</div>"
+    ].join("");
+  }
+  function buildContratSignatureStatus(demande) {
+    // Suivi en lecture seule du parcours "Lu et approuvé" puis signature
+    // (électronique, signature importée, ou contrat imprimé puis importé) —
+    // même donnée que celle affichée dans l'application PWA.
+    if (!demande.contratGenereLe) return "";
+    if (demande.contratSigneLe) {
+      var methodeLabel = demande.contratMethodeSignature === "electronique"
+        ? "elektronisch"
+        : demande.contratMethodeSignature === "photo"
+          ? "importierte Unterschrift"
+          : "PDF-Import";
+      var lienSigne = demande.contratPdfSigneUrl
+        ? ' <a href="' + demande.contratPdfSigneUrl + '" target="_blank" rel="noopener">Unterschriebenen Vertrag ansehen</a>'
+        : "";
+      return '<p style="font-size:var(--text-xs); color:#16a34a; margin-bottom:var(--space-3);">✅ Unterschrieben am ' + new Date(demande.contratSigneLe).toLocaleString("de-DE") + " (" + methodeLabel + ")." + lienSigne + "</p>";
+    }
+    if (demande.contratLuApprouveLe) {
+      return '<p style="font-size:var(--text-xs); color:#F5B301; margin-bottom:var(--space-3);">📖 Vom Kunden gelesen und akzeptiert am ' + new Date(demande.contratLuApprouveLe).toLocaleString("de-DE") + " — wartet auf Unterschrift.</p>";
+    }
+    return '<p style="font-size:var(--text-xs); color:var(--color-text-muted); margin-bottom:var(--space-3);">⏳ Vom Kunden noch nicht gelesen.</p>';
+  }
+  function buildDecisionBanqueBlock(demande) {
+    // N'apparaît qu'une fois le contrat signé par le client — avant cela,
+    // il n'y a rien à valider côté banque partenaire.
+    if (!demande.contratSigneLe) return "";
+
+    if (demande.banqueDecision) {
+      var labels = {
+        valide: ["✅ Contrat validé", "#16a34a"],
+        documents_requis: ["📄 Documents requis", "#F5B301"],
+        rejete: ["❌ Contrat rejeté", "#c0392b"]
+      };
+      var info = labels[demande.banqueDecision] || [demande.banqueDecision, "var(--color-text-muted)"];
+      var lienFinal = demande.contratPdfFinalUrl
+        ? ' · <a href="' + demande.contratPdfFinalUrl + '" target="_blank" rel="noopener">Finalen Vertrag ansehen</a>'
+        : "";
+      var ribStatut = "";
+      if (demande.banqueDecision === "valide" || demande.banqueDecision === "documents_requis") {
+        ribStatut = demande.clientRibSoumisLe
+          ? '<p style="font-size:var(--text-xs); color:#16a34a; margin-top:var(--space-2);">✅ Bankverbindung des Kunden erhalten am ' + new Date(demande.clientRibSoumisLe).toLocaleString("de-DE") + " (IBAN: " + (demande.clientRibIban || "\u2014") + ").</p>"
+          : '<p style="font-size:var(--text-xs); color:var(--color-text-muted); margin-top:var(--space-2);">⏳ Bankverbindung des Kunden noch nicht erhalten.</p>';
+      }
+      return [
+        '<div class="detail-section">',
+        '<div class="detail-section__title">🏦 Entscheidung der Partnerbank</div>',
+        '<p style="font-size:var(--text-xs); color:' + info[1] + '; font-weight:bold; margin-bottom:var(--space-2);">' + info[0] + " — " + new Date(demande.banqueDecisionLe).toLocaleString("de-DE") + lienFinal + "</p>",
+        ribStatut,
+        "</div>"
+      ].join("");
+    }
+
+    return [
+      '<div class="detail-section">',
+      '<div class="detail-section__title">🏦 Entscheidung der Partnerbank</div>',
+      '<p style="font-size:var(--text-xs); color:var(--color-text-muted); margin-bottom:var(--space-3);">Der Kunde hat den Kreditvertrag unterschrieben. Bitte tragen Sie hier die Entscheidung der Partnerbank ein.</p>',
+      '<div id="banqueDecisionErrorBox"></div>',
+      '<button class="btn btn-primary" id="banqueValideBtn" type="button" style="margin-right:var(--space-2); margin-bottom:var(--space-2); background-color:#16a34a; border-color:#16a34a;">✅ Contrat validé</button>',
+      '<button class="btn btn-outline-primary" id="banqueDocumentsBtn" type="button" style="margin-right:var(--space-2); margin-bottom:var(--space-2);">📄 Documents requis</button>',
+      '<button class="btn btn-outline-primary" id="banqueRejeteBtn" type="button" style="margin-bottom:var(--space-2); color:#c0392b; border-color:#c0392b;">❌ Contrat rejeté</button>',
+      "</div>"
+    ].join("");
+  }
+  function buildContratBlock(demande) {
+    if (!demande.offreEnvoyeeLe) return "";
+    var dejaGenere = demande.contratGenereLe
+      ? '<p style="font-size:var(--text-xs); color:var(--color-text-muted); margin-bottom:var(--space-3);">Vertrag bereits erstellt am ' + new Date(demande.contratGenereLe).toLocaleString("de-DE") + " (Ref. " + demande.contratReference + '). <a href="' + demande.contratPdfUrl + '" target="_blank" rel="noopener">PDF ansehen</a></p>'
+      : '<p style="font-size:var(--text-xs); color:var(--color-text-muted); margin-bottom:var(--space-3);">Angebot bei ' + demande.tauxOffert + ' % angenommen. Sie können jetzt den vollständigen Kreditvertrag erstellen und versenden.</p>';
+    return [
+      '<div class="detail-section">',
+      '<div class="detail-section__title">📜 Kreditvertrag</div>',
+      dejaGenere,
+      buildContratSignatureStatus(demande),
+      '<button class="btn btn-primary" id="contratEnvoyerBtn" type="button">📜 Kreditvertrag erstellen &amp; senden</button>',
+      "</div>"
+    ].join("");
+  }
+  function buildRibBlock(demande) {
+    var dejaEnvoye = demande.ribGenereLe
+      ? '<p style="font-size:var(--text-xs); color:var(--color-text-muted); margin-bottom:var(--space-3);">RIB zuletzt gesendet am ' + new Date(demande.ribGenereLe).toLocaleString("de-DE") + " (Ref. " + demande.ribReference + ")" + (demande.ribPdfUrl ? ' · <a href="' + demande.ribPdfUrl + '" target="_blank" rel="noopener">PDF ansehen</a>' : "") + "</p>"
+      : "";
+    var inputStyle = "width:100%; box-sizing:border-box; padding:8px 10px; border:1.5px solid var(--color-border); border-radius:6px; font-size:var(--text-sm); font-family:var(--font-body); margin-bottom:var(--space-2);";
+    return [
+      '<div class="detail-section">',
+      '<div class="detail-section__title">🧾 Bankverbindung (RIB)</div>',
+      dejaEnvoye,
+      '<button class="btn btn-outline-primary" id="ribToggleBtn" type="button">🧾 RIB als PDF senden</button>',
+      '<div id="ribFormWrap" style="display:none; margin-top:var(--space-3);">',
+      '<label style="font-size:var(--text-xs); color:var(--color-text-muted); display:block; margin-bottom:4px;">Kontoinhaber *</label>',
+      '<input type="text" id="ribTitulaireInput" style="' + inputStyle + '" placeholder="z. B. Finanzberatung Koitzsch u. Schuchardt">',
+      '<label style="font-size:var(--text-xs); color:var(--color-text-muted); display:block; margin-bottom:4px;">IBAN *</label>',
+      '<input type="text" id="ribIbanInput" style="' + inputStyle + '" placeholder="DE00 0000 0000 0000 0000 00">',
+      '<label style="font-size:var(--text-xs); color:var(--color-text-muted); display:block; margin-bottom:4px;">BIC / SWIFT *</label>',
+      '<input type="text" id="ribBicInput" style="' + inputStyle + '" placeholder="XXXXXXXX">',
+      '<label style="font-size:var(--text-xs); color:var(--color-text-muted); display:block; margin-bottom:4px;">Bank *</label>',
+      '<input type="text" id="ribBanqueInput" style="' + inputStyle + '" placeholder="z. B. Kresten Bank">',
+      '<label style="font-size:var(--text-xs); color:var(--color-text-muted); display:block; margin-bottom:4px;">Bankadresse (optional)</label>',
+      '<input type="text" id="ribBanqueAdresseInput" style="' + inputStyle + '" placeholder="Straße, PLZ, Ort">',
+      '<label style="font-size:var(--text-xs); color:var(--color-text-muted); display:block; margin-bottom:4px;">Verwendungszweck / Referenz (optional)</label>',
+      '<input type="text" id="ribReferenceInput" style="' + inputStyle + '" value="' + (demande.referenceNumber || "") + '">',
+      '<label style="font-size:var(--text-xs); color:var(--color-text-muted); display:block; margin-bottom:4px;">Begleittext (E-Mail-Nachricht)</label>',
+      '<textarea id="ribMessageInput" class="reply-textarea" rows="3" style="margin-bottom:var(--space-2);">Anbei erhalten Sie unsere Bankverbindung (RIB) im PDF-Format.</textarea>',
+      ribAttach.html(),
+      '<div id="ribErrorBox"></div>',
+      '<button class="btn btn-primary" id="ribEnvoyerBtn" type="button" style="margin-top:var(--space-2); margin-right:var(--space-2);">✅ RIB senden</button>',
+      '<button class="btn btn-outline-primary" id="ribAnnulerBtn" type="button" style="margin-top:var(--space-2);">Abbrechen</button>',
+      "</div>",
+      "</div>"
+    ].join("");
+  }
+  function buildQuittanceBlock(demande) {
+    var dejaEnvoye = demande.quittanceGenereLe
+      ? '<p style="font-size:var(--text-xs); color:var(--color-text-muted); margin-bottom:var(--space-3);">Quittung zuletzt gesendet am ' + new Date(demande.quittanceGenereLe).toLocaleString("de-DE") + " (Ref. " + demande.quittanceReference + ")" + (demande.quittancePdfUrl ? ' · <a href="' + demande.quittancePdfUrl + '" target="_blank" rel="noopener">PDF ansehen</a>' : "") + "</p>"
+      : "";
+    var inputStyle = "width:100%; box-sizing:border-box; padding:8px 10px; border:1.5px solid var(--color-border); border-radius:6px; font-size:var(--text-sm); font-family:var(--font-body); margin-bottom:var(--space-2);";
+    return [
+      '<div class="detail-section">',
+      '<div class="detail-section__title">🧾 Zahlungsbestätigung (Quittung)</div>',
+      dejaEnvoye,
+      '<button class="btn btn-outline-primary" id="quittanceToggleBtn" type="button">🧾 Quittung als PDF senden</button>',
+      '<div id="quittanceFormWrap" style="display:none; margin-top:var(--space-3);">',
+      '<label style="font-size:var(--text-xs); color:var(--color-text-muted); display:block; margin-bottom:4px;">Betrag (EUR) *</label>',
+      '<input type="number" step="0.01" min="0" id="quittanceMontantInput" style="' + inputStyle + '" placeholder="149.90">',
+      '<label style="font-size:var(--text-xs); color:var(--color-text-muted); display:block; margin-bottom:4px;">Zahlungsdatum *</label>',
+      '<input type="date" id="quittanceDateInput" style="' + inputStyle + '" value="' + new Date().toISOString().slice(0, 10) + '">',
+      '<label style="font-size:var(--text-xs); color:var(--color-text-muted); display:block; margin-bottom:4px;">Zahlungsgrund / Verwendungszweck *</label>',
+      '<input type="text" id="quittanceMotifInput" style="' + inputStyle + '" placeholder="z. B. Bearbeitungsgebühr für Kreditantrag ' + (demande.referenceNumber || "") + '">',
+      '<label style="font-size:var(--text-xs); color:var(--color-text-muted); display:block; margin-bottom:4px;">Zahlungsart (optional)</label>',
+      '<input type="text" id="quittanceModeInput" style="' + inputStyle + '" placeholder="z. B. Überweisung, Lastschrift, Bar">',
+      '<label style="font-size:var(--text-xs); color:var(--color-text-muted); display:block; margin-bottom:4px;">Zahlungsreferenz (optional)</label>',
+      '<input type="text" id="quittanceReferenceInput" style="' + inputStyle + '" placeholder="Interne oder externe Transaktionsreferenz">',
+      '<label style="font-size:var(--text-xs); color:var(--color-text-muted); display:block; margin-bottom:4px;">Begleittext (E-Mail-Nachricht)</label>',
+      '<textarea id="quittanceMessageInput" class="reply-textarea" rows="3" style="margin-bottom:var(--space-2);">Anbei erhalten Sie die Bestätigung Ihrer Zahlung im PDF-Format.</textarea>',
+      quittanceAttach.html(),
+      '<div id="quittanceErrorBox"></div>',
+      '<button class="btn btn-primary" id="quittanceEnvoyerBtn" type="button" style="margin-top:var(--space-2); margin-right:var(--space-2);">✅ Quittung senden</button>',
+      '<button class="btn btn-outline-primary" id="quittanceAnnulerBtn" type="button" style="margin-top:var(--space-2);">Abbrechen</button>',
+      "</div>",
+      "</div>"
+    ].join("");
+  }
+  function bindOffreButtons() {
+    var apercuBtn = document.getElementById("offreApercuBtn");
+    var envoyerBtn = document.getElementById("offreEnvoyerBtn");
+    if (!apercuBtn || !envoyerBtn) return;
+    apercuBtn.addEventListener("click", function() {
+      var taux = parseFloat(document.getElementById("offreTauxInput").value);
+      var resultBox = document.getElementById("offreApercuResult");
+      if (!taux || taux <= 0) {
+        resultBox.innerHTML = '<p style="color:#c0392b; font-size:var(--text-xs); margin-top:var(--space-2);">Bitte einen gültigen Zinssatz eingeben.</p>';
+        return;
+      }
+      apercuBtn.disabled = true;
+      envoyerBtn.disabled = true;
+      fetch(API_BASE + "/demandes/" + currentId + "/offre/apercu", {
+        method: "POST", headers: authHeaders(), body: JSON.stringify({ taux: taux })
+      }).then(function(r) { return r.json(); }).then(function(json) {
+        apercuBtn.disabled = false;
+        if (!json || !json.success) {
+          resultBox.innerHTML = '<p style="color:#c0392b; font-size:var(--text-xs); margin-top:var(--space-2);">' + ((json && json.message) || "Fehler bei der Berechnung.") + "</p>";
+          return;
+        }
+        var a = json.data.amortissement;
+        resultBox.innerHTML = [
+          '<div style="background:#f7f9fc; border-radius:8px; padding:var(--space-3); margin-top:var(--space-2);">',
+          '<div style="font-size:var(--text-sm);"><strong>Monatliche Rate:</strong> ' + a.mensualite.toLocaleString("de-DE") + " €</div>",
+          '<div style="font-size:var(--text-sm);"><strong>Gesamtkosten (Zinsen):</strong> ' + a.totalInterets.toLocaleString("de-DE") + " €</div>",
+          '<div style="font-size:var(--text-sm);"><strong>Gesamtrückzahlung:</strong> ' + a.totalPaye.toLocaleString("de-DE") + " €</div>",
+          '<div style="font-size:var(--text-xs); color:var(--color-text-muted); margin-top:var(--space-2);">Der vollständige Tilgungsplan (' + a.tableau.length + ' Monate) wird in der E-Mail an den Kunden enthalten sein.</div>',
+          "</div>"
+        ].join("");
+        envoyerBtn.disabled = false;
+      }).catch(function() {
+        apercuBtn.disabled = false;
+        resultBox.innerHTML = '<p style="color:#c0392b; font-size:var(--text-xs); margin-top:var(--space-2);">Verbindungsfehler.</p>';
+      });
+    });
+    envoyerBtn.addEventListener("click", function() {
+      var taux = parseFloat(document.getElementById("offreTauxInput").value);
+      var msg = document.getElementById("offreMessageInput").value;
+      if (!taux) return;
+      if (offreAttach.isUploading()) {
+        window.BlitzAdmin.showToast("Bitte warten Sie, bis alle Anhänge hochgeladen sind.");
+        return;
+      }
+      if (!window.confirm("Angebot mit " + taux + " % Zinssatz jetzt per E-Mail an den Kunden senden?")) return;
+      envoyerBtn.disabled = true;
+      envoyerBtn.textContent = "Wird gesendet…";
+      fetch(API_BASE + "/demandes/" + currentId + "/offre", {
+        method: "POST", headers: authHeaders(), body: JSON.stringify({ taux: taux, messagePerso: msg, pieceJointes: offreAttach.getPayload() })
+      }).then(function(r) { return r.json(); }).then(function(json) {
+        if (json && json.success) {
+          offreAttach.clear();
+          window.BlitzAdmin.showToast("Angebot erfolgreich gesendet.");
+          closeDrawer();
+          loadDemandes(pagination.page);
+        } else {
+          window.BlitzAdmin.showToast((json && json.message) || "Fehler beim Senden des Angebots.");
+          envoyerBtn.disabled = false;
+          envoyerBtn.textContent = "✅ Angebot senden";
+        }
+      }).catch(function() {
+        window.BlitzAdmin.showToast("Verbindungsfehler beim Senden des Angebots.");
+        envoyerBtn.disabled = false;
+        envoyerBtn.textContent = "✅ Angebot senden";
+      });
+    });
+    offreAttach.bind();
+  }
+  function bindDecisionBanqueButtons() {
+    var errorBox = document.getElementById("banqueDecisionErrorBox");
+    var labels = {
+      valide: { btnId: "banqueValideBtn", confirm: "Den Kreditvertrag als von der Partnerbank validiert markieren ? Der finale, dreifach unterschriebene Vertrag wird erstellt und dem Kunden per E-Mail zugestellt.", loading: "Wird erstellt…", restore: "✅ Contrat validé" },
+      documents_requis: { btnId: "banqueDocumentsBtn", confirm: "Den Kunden informieren, dass ein Versicherungsnachweis für die Auszahlung fehlt ?", loading: "Wird gesendet…", restore: "📄 Documents requis" },
+      rejete: { btnId: "banqueRejeteBtn", confirm: "Den Kreditantrag als von der Partnerbank abgelehnt markieren ? Der Kunde wird informiert und der Antrag auf \u201eAbgelehnt\u201c gesetzt.", loading: "Wird gesendet…", restore: "❌ Contrat rejeté" }
+    };
+    Object.keys(labels).forEach(function(decision) {
+      var cfg = labels[decision];
+      var btn = document.getElementById(cfg.btnId);
+      if (!btn) return;
+      btn.addEventListener("click", function() {
+        if (!window.confirm(cfg.confirm)) return;
+        if (errorBox) errorBox.innerHTML = "";
+        var allBtns = Object.keys(labels).map(function(k) { return document.getElementById(labels[k].btnId); }).filter(Boolean);
+        allBtns.forEach(function(b) { b.disabled = true; });
+        btn.textContent = cfg.loading;
+        fetch(API_BASE + "/demandes/" + currentId + "/decision-banque", {
+          method: "POST", headers: authHeaders(), body: JSON.stringify({ decision: decision })
+        }).then(function(r) { return r.json(); }).then(function(json) {
+          if (json && json.success) {
+            window.BlitzAdmin.showToast("Entscheidung der Partnerbank übermittelt.");
+            closeDrawer();
+            loadDemandes(pagination.page);
+          } else {
+            if (errorBox) errorBox.innerHTML = '<p style="color:#c0392b; font-size:var(--text-xs); margin-top:var(--space-2);">' + ((json && json.message) || "Fehler bei der Übermittlung.") + "</p>";
+            allBtns.forEach(function(b) { b.disabled = false; });
+            btn.textContent = cfg.restore;
+          }
+        }).catch(function() {
+          if (errorBox) errorBox.innerHTML = '<p style="color:#c0392b; font-size:var(--text-xs); margin-top:var(--space-2);">Verbindungsfehler.</p>';
+          allBtns.forEach(function(b) { b.disabled = false; });
+          btn.textContent = cfg.restore;
+        });
+      });
+    });
+  }
+  function bindContratButton() {
+    var btn = document.getElementById("contratEnvoyerBtn");
+    if (!btn) return;
+    btn.addEventListener("click", function() {
+      if (!window.confirm("Den vollständigen Kreditvertrag jetzt erstellen und per E-Mail an den Kunden senden?")) return;
+      btn.disabled = true;
+      btn.textContent = "Wird erstellt…";
+      fetch(API_BASE + "/demandes/" + currentId + "/contrat", {
+        method: "POST", headers: authHeaders(), body: JSON.stringify({})
+      }).then(function(r) { return r.json(); }).then(function(json) {
+        if (json && json.success) {
+          window.BlitzAdmin.showToast("Kreditvertrag erfolgreich gesendet.");
+          closeDrawer();
+          loadDemandes(pagination.page);
+        } else {
+          window.BlitzAdmin.showToast((json && json.message) || "Fehler beim Erstellen des Vertrags.");
+          btn.disabled = false;
+          btn.textContent = "📜 Kreditvertrag erstellen & senden";
+        }
+      }).catch(function() {
+        window.BlitzAdmin.showToast("Verbindungsfehler beim Erstellen des Vertrags.");
+        btn.disabled = false;
+        btn.textContent = "📜 Kreditvertrag erstellen & senden";
+      });
+    });
+  }
+  function bindRibButton() {
+    var toggleBtn = document.getElementById("ribToggleBtn");
+    var wrap = document.getElementById("ribFormWrap");
+    if (!toggleBtn || !wrap) return;
+    toggleBtn.addEventListener("click", function() {
+      wrap.style.display = wrap.style.display === "none" ? "block" : "none";
+    });
+    var annulerBtn = document.getElementById("ribAnnulerBtn");
+    if (annulerBtn) {
+      annulerBtn.addEventListener("click", function() {
+        wrap.style.display = "none";
+      });
+    }
+    var envoyerBtn = document.getElementById("ribEnvoyerBtn");
+    if (!envoyerBtn) return;
+    envoyerBtn.addEventListener("click", function() {
+      var titulaire = document.getElementById("ribTitulaireInput").value.trim();
+      var iban = document.getElementById("ribIbanInput").value.trim();
+      var bic = document.getElementById("ribBicInput").value.trim();
+      var banque = document.getElementById("ribBanqueInput").value.trim();
+      var banqueAdresse = document.getElementById("ribBanqueAdresseInput").value.trim();
+      var referenceVirement = document.getElementById("ribReferenceInput").value.trim();
+      var messagePerso = document.getElementById("ribMessageInput").value;
+      var errorBox = document.getElementById("ribErrorBox");
+      if (errorBox) errorBox.innerHTML = "";
+      if (!titulaire || !iban || !bic || !banque) {
+        if (errorBox) errorBox.innerHTML = '<p style="color:#c0392b; font-size:var(--text-xs); margin-top:var(--space-2);">Bitte alle Pflichtfelder (*) ausfüllen.</p>';
+        return;
+      }
+      if (ribAttach.isUploading()) {
+        window.BlitzAdmin.showToast("Bitte warten Sie, bis alle Anhänge hochgeladen sind.");
+        return;
+      }
+      if (!window.confirm("RIB jetzt als PDF erstellen und per E-Mail an den Kunden senden?")) return;
+      envoyerBtn.disabled = true;
+      envoyerBtn.textContent = "Wird gesendet…";
+      fetch(API_BASE + "/demandes/" + currentId + "/rib", {
+        method: "POST", headers: authHeaders(), body: JSON.stringify({
+          titulaire: titulaire, iban: iban, bic: bic, banque: banque,
+          banqueAdresse: banqueAdresse, referenceVirement: referenceVirement, messagePerso: messagePerso,
+          pieceJointes: ribAttach.getPayload()
+        })
+      }).then(function(r) { return r.json(); }).then(function(json) {
+        if (json && json.success) {
+          ribAttach.clear();
+          window.BlitzAdmin.showToast("RIB erfolgreich gesendet.");
+          closeDrawer();
+          loadDemandes(pagination.page);
+        } else {
+          if (errorBox) errorBox.innerHTML = '<p style="color:#c0392b; font-size:var(--text-xs); margin-top:var(--space-2);">' + ((json && json.message) || "Fehler beim Senden des RIB.") + "</p>";
+          envoyerBtn.disabled = false;
+          envoyerBtn.textContent = "✅ RIB senden";
+        }
+      }).catch(function() {
+        if (errorBox) errorBox.innerHTML = '<p style="color:#c0392b; font-size:var(--text-xs); margin-top:var(--space-2);">Verbindungsfehler.</p>';
+        envoyerBtn.disabled = false;
+        envoyerBtn.textContent = "✅ RIB senden";
+      });
+    });
+    ribAttach.bind();
+  }
+  function bindQuittanceButton() {
+    var toggleBtn = document.getElementById("quittanceToggleBtn");
+    var wrap = document.getElementById("quittanceFormWrap");
+    if (!toggleBtn || !wrap) return;
+    toggleBtn.addEventListener("click", function() {
+      wrap.style.display = wrap.style.display === "none" ? "block" : "none";
+    });
+    var annulerBtn = document.getElementById("quittanceAnnulerBtn");
+    if (annulerBtn) {
+      annulerBtn.addEventListener("click", function() {
+        wrap.style.display = "none";
+      });
+    }
+    var envoyerBtn = document.getElementById("quittanceEnvoyerBtn");
+    if (!envoyerBtn) return;
+    envoyerBtn.addEventListener("click", function() {
+      var montant = document.getElementById("quittanceMontantInput").value.trim();
+      var date = document.getElementById("quittanceDateInput").value.trim();
+      var motif = document.getElementById("quittanceMotifInput").value.trim();
+      var mode = document.getElementById("quittanceModeInput").value.trim();
+      var reference = document.getElementById("quittanceReferenceInput").value.trim();
+      var messagePerso = document.getElementById("quittanceMessageInput").value;
+      var errorBox = document.getElementById("quittanceErrorBox");
+      if (errorBox) errorBox.innerHTML = "";
+      if (!montant || Number(montant) <= 0 || !date || !motif) {
+        if (errorBox) errorBox.innerHTML = '<p style="color:#c0392b; font-size:var(--text-xs); margin-top:var(--space-2);">Bitte alle Pflichtfelder (*) korrekt ausfüllen.</p>';
+        return;
+      }
+      if (quittanceAttach.isUploading()) {
+        window.BlitzAdmin.showToast("Bitte warten Sie, bis alle Anhänge hochgeladen sind.");
+        return;
+      }
+      if (!window.confirm("Quittung jetzt als PDF erstellen und per E-Mail an den Kunden senden?")) return;
+      envoyerBtn.disabled = true;
+      envoyerBtn.textContent = "Wird gesendet…";
+      fetch(API_BASE + "/demandes/" + currentId + "/quittance", {
+        method: "POST", headers: authHeaders(), body: JSON.stringify({
+          montant: Number(montant), date: date, motif: motif,
+          mode: mode, reference: reference, messagePerso: messagePerso,
+          pieceJointes: quittanceAttach.getPayload()
+        })
+      }).then(function(r) { return r.json(); }).then(function(json) {
+        if (json && json.success) {
+          quittanceAttach.clear();
+          window.BlitzAdmin.showToast("Quittung erfolgreich gesendet.");
+          closeDrawer();
+          loadDemandes(pagination.page);
+        } else {
+          if (errorBox) errorBox.innerHTML = '<p style="color:#c0392b; font-size:var(--text-xs); margin-top:var(--space-2);">' + ((json && json.message) || "Fehler beim Senden der Quittung.") + "</p>";
+          envoyerBtn.disabled = false;
+          envoyerBtn.textContent = "✅ Quittung senden";
+        }
+      }).catch(function() {
+        if (errorBox) errorBox.innerHTML = '<p style="color:#c0392b; font-size:var(--text-xs); margin-top:var(--space-2);">Verbindungsfehler.</p>';
+        envoyerBtn.disabled = false;
+        envoyerBtn.textContent = "✅ Quittung senden";
+      });
+    });
+    quittanceAttach.bind();
+  }
+  function buildDrawerBody(demande, messages) {
+    var date = demande.createdAt ? new Date(demande.createdAt).toLocaleString("de-DE") : "\u2014";
+    var amount = demande.kreditbetrag ? Number(demande.kreditbetrag).toLocaleString("de-DE") + " \u20AC" : "\u2014";
+    var emailMessages = (messages || []).filter(function(m) {
+      return m.type === "email_client";
+    }).slice().reverse();
+    var thread;
+    if (messages === null) {
+      thread = '<p style="font-size:var(--text-sm); color:var(--color-text-muted);">Wird geladen\u2026</p>';
+    } else if (!emailMessages.length) {
+      thread = '<p style="font-size:var(--text-sm); color:var(--color-text-muted);">Noch keine E-Mail an den Kunden gesendet.</p>';
+    } else {
+      thread = emailMessages.map(function(m) {
+        var mdate = m.dateEnvoi || m.createdAt ? new Date(m.dateEnvoi || m.createdAt).toLocaleString("de-DE") : "\u2014";
+        var failedNote = m.statut === "echec" ? " \xB7 \u26A0\uFE0F Versand fehlgeschlagen" : "";
+        return '<div class="reply-thread-item"><div class="reply-thread-item__meta">' + mdate + failedNote + '</div><div class="reply-thread-item__subject">' + (m.sujet || "\u2014") + '</div><div class="reply-thread-item__body">' + (m.corps || "") + "</div></div>";
+      }).join("");
+    }
+    return [
+      '<div style="margin-bottom:var(--space-5);">' + statusBadge(demande.statut) + ' <small style="color:var(--color-text-muted); margin-left:var(--space-2);">Eingangsdatum: ' + date + "</small></div>",
+      '<div class="detail-section">',
+      '<div class="detail-section__title">Pers\xF6nliche Angaben</div>',
+      '<div class="detail-grid">',
+      detailRow("Vorname", demande.vorname),
+      detailRow("Nachname", demande.nachname),
+      detailRow("Geburtsdatum", demande.geburtsdatum),
+      detailRow("E-Mail", demande.email),
+      detailRow("Telefon", demande.telefon),
+      detailRow("Adresse", (demande.adresse || "") + (demande.ort ? ", " + demande.ort : "")),
+      detailRow("Wohnsitzland", demande.land),
+      detailRow("Besch\xE4ftigung", demande.beschaeftigung),
+      detailRow("Einkommen", demande.einkommen ? demande.einkommen + " \u20AC / Monat" : "\u2014"),
+      detailRow("Bestehende Verbindlichkeiten", (demande.bestehendeVerbindlichkeiten || 0) + " \u20AC / Monat"),
+      "</div></div>",
+      '<div class="detail-section">',
+      '<div class="detail-section__title">Kreditangaben</div>',
+      '<div class="detail-grid">',
+      detailRow("Kreditart", demande.kreditart),
+      detailRow("Betrag", amount),
+      detailRow("Laufzeit", demande.laufzeit ? demande.laufzeit + " Monate" : "\u2014"),
+      detailRow("Schuldenquote (gesch\xE4tzt)", typeof demande.schuldenquote === "number" ? demande.schuldenquote.toLocaleString("de-DE") + " %" : "\u2014"),
+      detailRow("Verwendungszweck", demande.verwendungszweck, true),
+      detailRow("SMS-Benachrichtigung", demande.sms_verification === "ja" ? "\u2713 Ja" : "\u2717 Nein"),
+      "</div></div>",
+      buildOffreBlock(demande),
+      buildContratBlock(demande),
+      buildDecisionBanqueBlock(demande),
+      buildRibBlock(demande),
+      buildQuittanceBlock(demande),
+      '<div class="detail-section">',
+      '<div class="detail-section__title">Systeminformationen</div>',
+      '<div class="detail-grid">',
+      detailRow("Referenznummer", demande.referenceNumber || demande._id),
+      detailRow("Eingangsdatum", date),
+      detailRow("Standort (IP)", demande.visiteurLocalisationAffichage || "\u2014"),
+      detailRow("IP-Adresse", demande.ipAdresse || "\u2014"),
+      "</div></div>",
+      '<div class="detail-section">',
+      '<div class="detail-section__title">Verlauf mit dem Kunden</div>',
+      thread,
+      "</div>",
+      demande.email ? '<div class="detail-section"><div class="detail-section__title">Direkt antworten (z. B. nach Zusage/Absage)</div><textarea id="replyText" class="reply-textarea" placeholder="Ihre Nachricht an den Kunden\u2026" rows="4"></textarea>' + replyAttach.html() + '<button class="btn btn-primary" id="sendReplyBtn" type="button">Antwort senden</button></div>' : ""
+    ].join("");
+  }
+  function bindReplyButton() {
+    var btn = document.getElementById("sendReplyBtn");
+    if (btn) btn.addEventListener("click", sendReply);
+    replyAttach.bind();
+  }
+  function sendReply() {
+    if (!currentId) return;
+    var demande = currentPageDemandes.find(function(d) {
+      return d._id === currentId;
+    });
+    if (!demande) return;
+    var textarea = document.getElementById("replyText");
+    var texte = (textarea.value || "").trim();
+    if (!texte) return;
+    if (replyAttach.isUploading()) {
+      window.BlitzAdmin.showToast("Bitte warten Sie, bis alle Anhänge hochgeladen sind.");
+      return;
+    }
+    var btn = document.getElementById("sendReplyBtn");
+    btn.disabled = true;
+    btn.textContent = "Wird gesendet\u2026";
+    fetch(API_BASE + "/admin/envoyer-email", {
+      method: "POST",
+      headers: authHeaders(),
+      body: JSON.stringify({
+        destinataire: demande.email,
+        sujet: "Ihr Kreditantrag " + (demande.referenceNumber || ""),
+        message: texte,
+        demandeId: demande._id,
+        pieceJointes: replyAttach.getPayload()
+      })
+    }).then(function(r) {
+      if (r.status === 401) {
+        logout();
+        return null;
+      }
+      return r.json();
+    }).then(function(json) {
+      if (!json) return;
+      if (!json.success) throw new Error(json.message || "Fehler beim Senden");
+      replyAttach.clear();
+      window.BlitzAdmin.showToast("Antwort erfolgreich an " + demande.email + " gesendet.");
+      window.openDrawer(currentId);
+    }).catch(function(err) {
+      window.BlitzAdmin.showToast("Fehler beim Senden: " + err.message);
+      btn.disabled = false;
+      btn.textContent = "Antwort senden";
+    });
+  }
+  function detailRow(label, value, full) {
+    return "<div" + (full ? ' style="grid-column:1/-1;"' : "") + '><div class="detail-field__label">' + label + '</div><div class="detail-field__value">' + (value || "\u2014") + "</div></div>";
+  }
+  function closeDrawer() {
+    var overlay = document.getElementById("drawerOverlay");
+    if (overlay) overlay.classList.remove("open");
+    currentId = null;
+  }
+  function saveStatus() {
+    if (!currentId) return;
+    var newStatus = document.getElementById("drawerStatusSelect").value;
+    fetch(API_BASE + "/demandes/" + currentId + "/statut", {
+      method: "PUT",
+      headers: authHeaders(),
+      body: JSON.stringify({ statut: newStatus })
+    }).then(function(r) {
+      if (r.status === 401) {
+        logout();
+        return null;
+      }
+      return r.json();
+    }).then(function(json) {
+      if (!json) return;
+      closeDrawer();
+      loadDemandes(pagination.page);
+      loadStats();
+    }).catch(function() {
+      var d = currentPageDemandes.find(function(x) {
+        return x._id === currentId;
+      });
+      if (d) d.statut = newStatus;
+      renderTable();
+      closeDrawer();
+    });
+  }
+  function updateChatBadge() {
+    fetch(API_BASE + "/chat/admin/non-lus", { headers: authHeaders() }).then(function(r) {
+      return r.json();
+    }).then(function(json) {
+      var el = document.getElementById("chatUnreadCount");
+      if (el && json && json.success) el.textContent = json.data.total;
+    }).catch(function() {
+    });
+  }
+  function setText(id, text) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = text;
+  }
+  function bindEvents() {
+    var drawerClose = document.getElementById("drawerClose");
+    var drawerCloseB = document.getElementById("drawerCloseBtn");
+    var overlay = document.getElementById("drawerOverlay");
+    if (drawerClose) drawerClose.addEventListener("click", closeDrawer);
+    if (drawerCloseB) drawerCloseB.addEventListener("click", closeDrawer);
+    if (overlay) overlay.addEventListener("click", function(e) {
+      if (e.target === overlay) closeDrawer();
+    });
+    var saveBtn = document.getElementById("saveStatusBtn");
+    if (saveBtn) saveBtn.addEventListener("click", saveStatus);
+    var logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) logoutBtn.addEventListener("click", function(e) {
+      e.preventDefault();
+      logout();
+    });
+    ["filterStatus", "filterType"].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener("change", function() {
+        loadDemandes(1);
+      });
+    });
+    var searchEl = document.getElementById("globalSearch");
+    if (searchEl) searchEl.addEventListener("input", function() {
+      clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(function() {
+        loadDemandes(1);
+      }, 350);
+    });
+  }
+  function init() {
+    if (!checkAuth()) return;
+    loadUserInfo();
+    bindEvents();
+    window.BlitzAdmin.initSidebar();
+    loadDemandes(1);
+    loadStats();
+    updateChatBadge();
+    var openDemandeId = new URLSearchParams(location.search).get("openDemande");
+    if (openDemandeId) window.openDrawer(openDemandeId);
+    setInterval(function() {
+      loadDemandes(pagination.page);
+      loadStats();
+    }, 3e5);
+    setInterval(updateChatBadge, 2e4);
+  }
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();
+</script>
+</body>
+</html>
